@@ -4,6 +4,32 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Plan UTCino de Emergencia</title>
+
+  <!-- Integración de Firebase SDK -->
+  <script type="module">
+    // Import the functions you need from the SDKs you need
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.16.0/firebase-app.js";
+    import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.16.0/firebase-analytics.js";
+    // TODO: Add SDKs for Firebase products that you want to use
+    // https://firebase.google.com/docs/web/setup#available-libraries
+
+    // Your web app's Firebase configuration
+    // For Firebase JS SDK v7.20.0 and later, measurementId is optional
+    const firebaseConfig = {
+      apiKey: "AIzaSyDkf64JPl10Fz3osdwoqvCylKS2BQJ0QmQ",
+      authDomain: "utc-emergencia-cbe84.firebaseapp.com",
+      projectId: "utc-emergencia-cbe84",
+      storageBucket: "utc-emergencia-cbe84.firebasestorage.app",
+      messagingSenderId: "1035114910540",
+      appId: "1:1035114910540:web:84410d4ab65831d5c3f5e9",
+      measurementId: "G-L7KC1R3SM6"
+    };
+
+    // Initialize Firebase
+    const app = initializeApp(firebaseConfig);
+    const analytics = getAnalytics(app);
+  </script>
+
   <style>
     :root {
       --bg-main: #0f172a;
@@ -628,375 +654,468 @@
  </head>
  <body>
   <div class="app-frame">
+
    <!-- 1. INICIO -->
    <div id="tab-inicio" class="tab-content active">
     <div class="banner-hero">
      <img class="banner-bg" src="PORTADA.jpg" alt="Portada UTC">
      <div class="utc-badge-avatar" id="home-avatar-container">
-      <span>UTC</span>
+       <span>UTC</span>
      </div>
     </div>
+
     <div class="welcome-box">
      <h2 id="home-welcome-title">¡Bienvenido, UTCino!</h2>
      <p id="home-welcome-sub">Tu asistente integral de seguridad y respuesta inmediata ante emergencias institucionales.</p>
     </div>
+
     <div class="quick-actions">
      <div class="action-card-btn" onclick="switchTab('informacion', document.getElementById('nav-ficha'))">
       <span>👤 MI FICHA MÉDICA / ESTADO</span> <span>➔</span>
      </div>
+
      <div class="action-card-btn" onclick="switchTab('protocolos', document.getElementById('nav-protocolos'))">
       <span>🗺️ BLOQUES DEL CAMPUS &amp; RUTAS</span> <span>➔</span>
      </div>
-     <a href="tel:911" class="action-card-btn danger-btn"> <span>🚨 LLAMAR AL ECU 911 (URGENCIA)</span> <span>📞</span> </a>
+     
+     <a href="tel:911" class="action-card-btn danger-btn">
+      <span>🚨 LLAMAR AL ECU 911 (URGENCIA)</span> <span>📞</span>
+     </a>
     </div>
    </div>
+
    <!-- 2. FICHA MÉDICA / INFORMACIÓN -->
    <div id="tab-informacion" class="tab-content">
     <div class="section-title">Ficha Médica de Emergencia</div>
     <div class="section-subtitle">Completa tus datos para respuesta en campus.</div>
+
     <div id="form-mode" class="form-card">
      <form id="medicalForm">
       <div class="form-group">
-       <label>Rol de Usuario</label> <select id="input-rol" class="form-control" onchange="toggleRoleFields(this.value)" required> <option value="Estudiante" selected>Estudiante</option> <option value="Ingeniero">Ingeniero / Docente</option> </select>
+       <label>Rol de Usuario</label> 
+       <select id="input-rol" class="form-control" onchange="toggleRoleFields(this.value)" required>
+        <option value="Estudiante" selected>Estudiante</option>
+        <option value="Ingeniero">Ingeniero / Docente</option>
+       </select>
       </div>
+
       <div class="form-group" id="teacher-code-box" style="display: none;">
-       <label style="color: #f87171;">🔑 Código para Ingenieros Autorizados</label> <input type="password" id="input-clave-profesor" class="form-control" placeholder="Ingresa el código docente">
+       <label style="color: #f87171;">🔑 Código para Ingenieros Autorizados</label> 
+       <input type="password" id="input-clave-profesor" class="form-control" placeholder="Ingresa el código docente">
       </div>
+
       <div class="form-group">
-       <label>Nombre Completo</label> <input type="text" id="input-nombre" class="form-control" placeholder="Ej. Ing. Carlos Mendoza" required>
+       <label>Nombre Completo</label> 
+       <input type="text" id="input-nombre" class="form-control" placeholder="Ej. Ing. Carlos Mendoza" required>
       </div>
+
       <div class="form-group">
-       <label>Cédula de Identidad</label> <input type="text" id="input-cedula" class="form-control" maxlength="10" placeholder="10 dígitos" required>
+       <label>Cédula de Identidad</label> 
+       <input type="text" id="input-cedula" class="form-control" maxlength="10" placeholder="10 dígitos" required>
       </div>
+
       <div id="student-fields">
-       <div class="form-group">
-        <label>Carrera UTC</label> <select id="input-carrera-student" class="form-control"></select>
-       </div>
-       <div class="form-group">
-        <label>Ciclo / Semestre</label> <select id="input-ciclo-student" class="form-control"> <option value="1ro Semestre">1ro Semestre</option> <option value="2do Semestre">2do Semestre</option> <option value="3ro Semestre">3ro Semestre</option> <option value="4to Semestre">4to Semestre</option> <option value="5to Semestre">5to Semestre</option> <option value="6to Semestre">6to Semestre</option> <option value="7mo Semestre">7mo Semestre</option> <option value="8vo Semestre">8vo Semestre</option> </select>
-       </div>
+        <div class="form-group">
+         <label>Carrera UTC</label>
+         <select id="input-carrera-student" class="form-control"></select>
+        </div>
+        <div class="form-group">
+         <label>Ciclo / Semestre</label> 
+         <select id="input-ciclo-student" class="form-control">
+           <option value="1ro Semestre">1ro Semestre</option>
+           <option value="2do Semestre">2do Semestre</option>
+           <option value="3ro Semestre">3ro Semestre</option>
+           <option value="4to Semestre">4to Semestre</option>
+           <option value="5to Semestre">5to Semestre</option>
+           <option value="6to Semestre">6to Semestre</option>
+           <option value="7mo Semestre">7mo Semestre</option>
+           <option value="8vo Semestre">8vo Semestre</option>
+         </select>
+        </div>
       </div>
+
       <div id="teacher-fields" style="display: none;">
-       <div class="form-group">
-        <label>Cursos a Cargo (Semestres 1º al 8º)</label>
-        <div class="checkbox-group" id="teacher-courses-list"></div>
-       </div>
+        <div class="form-group">
+         <label>Cursos a Cargo (Semestres 1º al 8º)</label>
+         <div class="checkbox-group" id="teacher-courses-list"></div>
+        </div>
       </div>
+
       <div class="form-group">
        <label>Foto de Perfil</label>
        <div class="file-upload-box">
-        <span>📷 Toca para subir tu foto</span> <input type="file" id="input-foto" accept="image/*" onchange="previewImage(this)">
+        <span>📷 Toca para subir tu foto</span> 
+        <input type="file" id="input-foto" accept="image/*" onchange="previewImage(this)">
        </div>
        <img id="preview-foto" class="upload-preview" alt="Foto">
       </div>
+
       <div class="form-group">
-       <label>Contacto de Emergencia</label> <input type="text" id="input-contacto-nom" class="form-control" placeholder="Nombre (Ej. Mamá)" required>
+       <label>Contacto de Emergencia</label> 
+       <input type="text" id="input-contacto-nom" class="form-control" placeholder="Nombre (Ej. Mamá)" required>
       </div>
       <div class="form-group">
-       <label>Teléfono de Contacto</label> <input type="tel" id="input-contacto-tel" class="form-control" placeholder="Ej. 0991234567" required>
+       <label>Teléfono de Contacto</label> 
+       <input type="tel" id="input-contacto-tel" class="form-control" placeholder="Ej. 0991234567" required>
       </div>
+
       <button type="submit" class="btn-submit">💾 Guardar Ficha Médica</button>
      </form>
     </div>
+
     <div id="view-mode" class="profile-card-view" style="display: none;">
      <img id="view-foto-img" src="" class="profile-header-avatar" alt="Foto">
      <h3 id="view-nombre-text">--</h3>
      <p id="view-carrera-text" style="color: var(--accent); font-size: 0.85rem; font-weight: 600;">--</p>
      <div class="detail-grid">
-      <div class="detail-item">
-       <label>Rol</label><span id="view-rol">--</span>
-      </div>
-      <div class="detail-item">
-       <label>Cédula</label><span id="view-cedula">--</span>
-      </div>
-      <div class="detail-item full-width">
-       <label id="view-cursos-label">Asignación</label><span id="view-ciclo">--</span>
-      </div>
-      <div class="detail-item full-width">
-       <label>Contacto Emergencia</label><span id="view-contacto">--</span>
-      </div>
+      <div class="detail-item"><label>Rol</label><span id="view-rol">--</span></div>
+      <div class="detail-item"><label>Cédula</label><span id="view-cedula">--</span></div>
+      <div class="detail-item full-width"><label id="view-cursos-label">Asignación</label><span id="view-ciclo">--</span></div>
+      <div class="detail-item full-width"><label>Contacto Emergencia</label><span id="view-contacto">--</span></div>
      </div>
      <button class="action-card-btn" style="margin-top: 20px; justify-content: center; width: 100%;" onclick="enableEditMode()">✏️ EDITAR MI FICHA</button>
     </div>
    </div>
+
    <!-- 3. LISTA DE ESTUDIANTES -->
    <div id="tab-estudiantes" class="tab-content">
     <div class="section-title">Registro de Estudiantes</div>
     <div class="section-subtitle">Consulta y filtra fichas médicas de estudiantes registrados.</div>
+
     <div class="filter-box">
-     <input type="text" id="search-student" class="form-control" placeholder="🔍 Buscar por nombre o cédula..." oninput="filterStudents()">
-     <div style="display: flex; gap: 8px;">
-      <select id="filter-carrera" class="form-control" onchange="filterStudents()"> <option value="">Todas las Carreras</option> </select> <select id="filter-ciclo" class="form-control" onchange="filterStudents()"> <option value="">Todos los Semestres</option> <option value="1ro Semestre">1ro Semestre</option> <option value="2do Semestre">2do Semestre</option> <option value="3ro Semestre">3ro Semestre</option> <option value="4to Semestre">4to Semestre</option> <option value="5to Semestre">5to Semestre</option> <option value="6to Semestre">6to Semestre</option> <option value="7mo Semestre">7mo Semestre</option> <option value="8vo Semestre">8vo Semestre</option> </select>
-     </div>
-     <div style="font-size:0.75rem; color: var(--text-secondary); text-align: right;" id="students-count">Mostrando 0 estudiantes</div>
+      <input type="text" id="search-student" class="form-control" placeholder="🔍 Buscar por nombre o cédula..." oninput="filterStudents()">
+      
+      <div style="display: flex; gap: 8px;">
+        <select id="filter-carrera" class="form-control" onchange="filterStudents()">
+          <option value="">Todas las Carreras</option>
+        </select>
+
+        <select id="filter-ciclo" class="form-control" onchange="filterStudents()">
+          <option value="">Todos los Semestres</option>
+          <option value="1ro Semestre">1ro Semestre</option>
+          <option value="2do Semestre">2do Semestre</option>
+          <option value="3ro Semestre">3ro Semestre</option>
+          <option value="4to Semestre">4to Semestre</option>
+          <option value="5to Semestre">5to Semestre</option>
+          <option value="6to Semestre">6to Semestre</option>
+          <option value="7mo Semestre">7mo Semestre</option>
+          <option value="8vo Semestre">8vo Semestre</option>
+        </select>
+      </div>
+      <div style="font-size:0.75rem; color: var(--text-secondary); text-align: right;" id="students-count">Mostrando 0 estudiantes</div>
     </div>
+
     <div id="students-container"></div>
    </div>
+
    <!-- MODAL FICHA DETALLADA -->
    <div id="student-modal" class="modal-overlay">
-    <div class="modal-content profile-card-view">
-     <button class="close-modal" onclick="closeStudentModal()">×</button>
-     <img id="modal-student-img" class="profile-header-avatar" src="" alt="Alumno">
-     <h3 id="modal-student-name">--</h3>
-     <p id="modal-student-carrera" style="color: var(--accent); font-size: 0.85rem; font-weight: 600;">--</p>
-     <div class="detail-grid">
-      <div class="detail-item">
-       <label>Cédula</label><span id="modal-student-cedula">--</span>
-      </div>
-      <div class="detail-item">
-       <label>Semestre</label><span id="modal-student-ciclo">--</span>
-      </div>
-      <div class="detail-item full-width">
-       <label>Contacto Emergencia</label><span id="modal-student-contact">--</span>
-      </div>
+     <div class="modal-content profile-card-view">
+       <button class="close-modal" onclick="closeStudentModal()">&times;</button>
+       <img id="modal-student-img" class="profile-header-avatar" src="" alt="Alumno">
+       <h3 id="modal-student-name">--</h3>
+       <p id="modal-student-carrera" style="color: var(--accent); font-size: 0.85rem; font-weight: 600;">--</p>
+       
+       <div class="detail-grid">
+         <div class="detail-item"><label>Cédula</label><span id="modal-student-cedula">--</span></div>
+         <div class="detail-item"><label>Semestre</label><span id="modal-student-ciclo">--</span></div>
+         <div class="detail-item full-width"><label>Contacto Emergencia</label><span id="modal-student-contact">--</span></div>
+       </div>
+
+       <a id="modal-student-call" href="#" class="btn-submit" style="margin-top: 16px; text-decoration: none; display: block;">📞 Llamar Emergencia</a>
      </div>
-     <a id="modal-student-call" href="#" class="btn-submit" style="margin-top: 16px; text-decoration: none; display: block;">📞 Llamar Emergencia</a>
-    </div>
    </div>
+
    <!-- 4. CONTENIDO DE PLAN DE BLOQUES -->
    <div id="tab-protocolos" class="tab-content">
     <div class="section-title">Contenido de Plan</div>
     <div class="section-subtitle">Toca cada bloque para desplegar el Plan de Reconocimiento de Amenazas Naturales.</div>
+
     <div class="block-card-expandable" onclick="toggleBlock(this)">
-     <div class="block-header-clickable">
-      <div class="block-title-group">
-       <span class="block-title">🏢 Bloque 1: Edificio Administrativo</span> <span class="block-subtitle">Rectorado, Vicerrectorado y Secretaría</span>
+      <div class="block-header-clickable">
+        <div class="block-title-group">
+          <span class="block-title">🏢 Bloque 1: Edificio Administrativo</span>
+          <span class="block-subtitle">Rectorado, Vicerrectorado y Secretaría</span>
+        </div>
+        <span class="arrow-icon">▼</span>
       </div>
-      <span class="arrow-icon">▼</span>
-     </div>
-     <div class="block-details-content">
-      <div class="threat-box threat-volcano">
-       🌋 <strong>Amenaza Volcánica (Cotopaxi):</strong> Exposición media a caída de ceniza. Riesgo de flujo lahárico nulo.
+      <div class="block-details-content">
+        <div class="threat-box threat-volcano">
+          🌋 <strong>Amenaza Volcánica (Cotopaxi):</strong> Exposición media a caída de ceniza. Riesgo de flujo lahárico nulo.
+        </div>
+        <div class="threat-box threat-seismic">
+          ⚠️ <strong>Riesgo Sísmico:</strong> Estructura mixta de hormigón. Vulnerabilidad en ventanales de vidrio del 2º piso.
+        </div>
+
+        <div class="plan-section-head">📍 Ubicación de Equipos de Emergencia</div>
+        <ul class="plan-list">
+          <li><strong>Extintores PQS (10 lbs):</strong> Hall principal y Planta Alta junto a Cajas.</li>
+          <li><strong>Botiquín P.A.:</strong> Oficina de Talento Humano.</li>
+          <li><strong>Gabinete Contra Incendios:</strong> Pasillo central PB.</li>
+        </ul>
+
+        <div class="plan-section-head">🚨 Plan de Evacuación &amp; Protocolo</div>
+        <ul class="plan-list">
+          <li><strong>Ruta A de Despeje:</strong> Salida por la puerta principal de cristal hacia la Plaza Central.</li>
+          <li><strong>Tiempo estimado de evacuación:</strong> 1 minuto 45 segundos.</li>
+          <li><strong>Punto de Encuentro Seguro:</strong> Rotonda de Parqueaderos Administrativos.</li>
+        </ul>
       </div>
-      <div class="threat-box threat-seismic">
-       ⚠️ <strong>Riesgo Sísmico:</strong> Estructura mixta de hormigón. Vulnerabilidad en ventanales de vidrio del 2º piso.
-      </div>
-      <div class="plan-section-head">📍 Ubicación de Equipos de Emergencia</div>
-      <ul class="plan-list">
-       <li><strong>Extintores PQS (10 lbs):</strong> Hall principal y Planta Alta junto a Cajas.</li>
-       <li><strong>Botiquín P.A.:</strong> Oficina de Talento Humano.</li>
-       <li><strong>Gabinete Contra Incendios:</strong> Pasillo central PB.</li>
-      </ul>
-      <div class="plan-section-head">🚨 Plan de Evacuación &amp; Protocolo</div>
-      <ul class="plan-list">
-       <li><strong>Ruta A de Despeje:</strong> Salida por la puerta principal de cristal hacia la Plaza Central.</li>
-       <li><strong>Tiempo estimado de evacuación:</strong> 1 minuto 45 segundos.</li>
-       <li><strong>Punto de Encuentro Seguro:</strong> Rotonda de Parqueaderos Administrativos.</li>
-      </ul>
-     </div>
     </div>
+
     <div class="block-card-expandable" onclick="toggleBlock(this)">
-     <div class="block-header-clickable">
-      <div class="block-title-group">
-       <span class="block-title">🔬 Bloque 2: Laboratorios de Cómputo</span> <span class="block-subtitle">Centro de Cómputo, Redes y Servidores</span>
+      <div class="block-header-clickable">
+        <div class="block-title-group">
+          <span class="block-title">🔬 Bloque 2: Laboratorios de Cómputo</span>
+          <span class="block-subtitle">Centro de Cómputo, Redes y Servidores</span>
+        </div>
+        <span class="arrow-icon">▼</span>
       </div>
-      <span class="arrow-icon">▼</span>
-     </div>
-     <div class="block-details-content">
-      <div class="threat-box threat-seismic">
-       ⚡ <strong>Riesgo Sísmico &amp; Eléctrico:</strong> Alta densidad de cableado energizado y racks. Riesgo de cortocircuito post-sismo.
+      <div class="block-details-content">
+        <div class="threat-box threat-seismic">
+          ⚡ <strong>Riesgo Sísmico &amp; Eléctrico:</strong> Alta densidad de cableado energizado y racks. Riesgo de cortocircuito post-sismo.
+        </div>
+        <div class="threat-box threat-hydro">
+          🌧️ <strong>Amenaza Hidrometeorológica:</strong> Filtración en techos por granizo fuerte en laboratorios superiores.
+        </div>
+
+        <div class="plan-section-head">📍 Ubicación de Equipos de Emergencia</div>
+        <ul class="plan-list">
+          <li><strong>Extintores Solkaflam / CO2 (15 lbs):</strong> Dentro de Servidores y Entrada Lab 1 y 3.</li>
+          <li><strong>Corte General de Energía (Breaker Triásico):</strong> Tablero principal a la entrada del bloque.</li>
+          <li><strong>Botiquín P.A.:</strong> Oficina del Administrador del Centro de Cómputo.</li>
+        </ul>
+
+        <div class="plan-section-head">🚨 Plan de Evacuación &amp; Protocolo</div>
+        <ul class="plan-list">
+          <li><strong>Acción Inmediata:</strong> Docente corta el suministro eléctrico del aula antes de salir.</li>
+          <li><strong>Ruta de Evacuación:</strong> Pasillo Este directo hacia la Cancha Sintética.</li>
+          <li><strong>Punto de Encuentro Seguro:</strong> Centro de la Cancha Sintética (Zona Abierta B).</li>
+        </ul>
       </div>
-      <div class="threat-box threat-hydro">
-       🌧️ <strong>Amenaza Hidrometeorológica:</strong> Filtración en techos por granizo fuerte en laboratorios superiores.
-      </div>
-      <div class="plan-section-head">📍 Ubicación de Equipos de Emergencia</div>
-      <ul class="plan-list">
-       <li><strong>Extintores Solkaflam / CO2 (15 lbs):</strong> Dentro de Servidores y Entrada Lab 1 y 3.</li>
-       <li><strong>Corte General de Energía (Breaker Triásico):</strong> Tablero principal a la entrada del bloque.</li>
-       <li><strong>Botiquín P.A.:</strong> Oficina del Administrador del Centro de Cómputo.</li>
-      </ul>
-      <div class="plan-section-head">🚨 Plan de Evacuación &amp; Protocolo</div>
-      <ul class="plan-list">
-       <li><strong>Acción Inmediata:</strong> Docente corta el suministro eléctrico del aula antes de salir.</li>
-       <li><strong>Ruta de Evacuación:</strong> Pasillo Este directo hacia la Cancha Sintética.</li>
-       <li><strong>Punto de Encuentro Seguro:</strong> Centro de la Cancha Sintética (Zona Abierta B).</li>
-      </ul>
-     </div>
     </div>
+
     <div class="block-card-expandable" onclick="toggleBlock(this)">
-     <div class="block-header-clickable">
-      <div class="block-title-group">
-       <span class="block-title">📚 Bloque 3: Aulas e Ingeniería Industrial</span> <span class="block-subtitle">Aulas Teóricas 1º a 8º Semestre y Decanato</span>
+      <div class="block-header-clickable">
+        <div class="block-title-group">
+          <span class="block-title">📚 Bloque 3: Aulas e Ingeniería Industrial</span>
+          <span class="block-subtitle">Aulas Teóricas 1º a 8º Semestre y Decanato</span>
+        </div>
+        <span class="arrow-icon">▼</span>
       </div>
-      <span class="arrow-icon">▼</span>
-     </div>
-     <div class="block-details-content">
-      <div class="threat-box threat-seismic">
-       🏫 <strong>Riesgo Sísmico:</strong> Aforo simultáneo elevado (hasta 450 estudiantes). Peligro de embotellamiento en escaleras.
+      <div class="block-details-content">
+        <div class="threat-box threat-seismic">
+          🏫 <strong>Riesgo Sísmico:</strong> Aforo simultáneo elevado (hasta 450 estudiantes). Peligro de embotellamiento en escaleras.
+        </div>
+        <div class="threat-box threat-volcano">
+          🌋 <strong>Caída de Ceniza:</strong> Ingreso de ceniza por ventilación lateral cruzada.
+        </div>
+
+        <div class="plan-section-head">📍 Ubicación de Equipos de Emergencia</div>
+        <ul class="plan-list">
+          <li><strong>Extintores PQS (10 lbs):</strong> 2 por cada piso, al inicio y final del pasillo.</li>
+          <li><strong>Megáfono &amp; Alarma Manual:</strong> Secretaría de Decanato (Piso 1).</li>
+          <li><strong>Camilla de Lona Rígida:</strong> Bajo la gradera del piso bajo.</li>
+        </ul>
+
+        <div class="plan-section-head">🚨 Plan de Evacuación &amp; Protocolo</div>
+        <ul class="plan-list">
+          <li><strong>Orden de Evacuación:</strong> Planta baja evacúa primero, pisos superiores bajan en fila india por la derecha.</li>
+          <li><strong>Ruta de Evacuación:</strong> Escaleras de emergencia hacia el Patio de Honor.</li>
+          <li><strong>Punto de Encuentro Seguro:</strong> Patio de Honor Central.</li>
+        </ul>
       </div>
-      <div class="threat-box threat-volcano">
-       🌋 <strong>Caída de Ceniza:</strong> Ingreso de ceniza por ventilación lateral cruzada.
-      </div>
-      <div class="plan-section-head">📍 Ubicación de Equipos de Emergencia</div>
-      <ul class="plan-list">
-       <li><strong>Extintores PQS (10 lbs):</strong> 2 por cada piso, al inicio y final del pasillo.</li>
-       <li><strong>Megáfono &amp; Alarma Manual:</strong> Secretaría de Decanato (Piso 1).</li>
-       <li><strong>Camilla de Lona Rígida:</strong> Bajo la gradera del piso bajo.</li>
-      </ul>
-      <div class="plan-section-head">🚨 Plan de Evacuación &amp; Protocolo</div>
-      <ul class="plan-list">
-       <li><strong>Orden de Evacuación:</strong> Planta baja evacúa primero, pisos superiores bajan en fila india por la derecha.</li>
-       <li><strong>Ruta de Evacuación:</strong> Escaleras de emergencia hacia el Patio de Honor.</li>
-       <li><strong>Punto de Encuentro Seguro:</strong> Patio de Honor Central.</li>
-      </ul>
-     </div>
     </div>
+
     <div class="block-card-expandable" onclick="toggleBlock(this)">
-     <div class="block-header-clickable">
-      <div class="block-title-group">
-       <span class="block-title">⚡ Bloque 4: Electromecánica &amp; Electricidad</span> <span class="block-subtitle">Talleres Pesados, Máquinas Eléctricas y Transformadores</span>
+      <div class="block-header-clickable">
+        <div class="block-title-group">
+          <span class="block-title">⚡ Bloque 4: Electromecánica &amp; Electricidad</span>
+          <span class="block-subtitle">Talleres Pesados, Máquinas Eléctricas y Transformadores</span>
+        </div>
+        <span class="arrow-icon">▼</span>
       </div>
-      <span class="arrow-icon">▼</span>
-     </div>
-     <div class="block-details-content">
-      <div class="threat-box threat-volcano">
-       🔥 <strong>Amenaza Mixta (Fuego/Sismo):</strong> Presencia de materiales inflamables, maquinaria pesada y transformadores.
+      <div class="block-details-content">
+        <div class="threat-box threat-volcano">
+          🔥 <strong>Amenaza Mixta (Fuego/Sismo):</strong> Presencia de materiales inflamables, maquinaria pesada y transformadores.
+        </div>
+
+        <div class="plan-section-head">📍 Ubicación de Equipos de Emergencia</div>
+        <ul class="plan-list">
+          <li><strong>Extintores CO2 &amp; PQS (20 lbs):</strong> En zona de soldadura, tableros trifásicos y tornos.</li>
+          <li><strong>Mesa de Parada de Emergencia:</strong> Seta roja en la entrada de taller.</li>
+          <li><strong>Lavaojos &amp; Botiquín Químico:</strong> Taller de Máquinas Eléctricas.</li>
+        </ul>
+
+        <div class="plan-section-head">🚨 Plan de Evacuación &amp; Protocolo</div>
+        <ul class="plan-list">
+          <li><strong>Protocolo Especial:</strong> Presionar botón rojo de apagado general de maquinaria antes de abandonar el área.</li>
+          <li><strong>Ruta de Evacuación:</strong> Portón posterior de carga directo a la Zona Abierta Norte.</li>
+          <li><strong>Punto de Encuentro Seguro:</strong> Espacio Abierto Zona Norte (Cercano a Portón Vehicular).</li>
+        </ul>
       </div>
-      <div class="plan-section-head">📍 Ubicación de Equipos de Emergencia</div>
-      <ul class="plan-list">
-       <li><strong>Extintores CO2 &amp; PQS (20 lbs):</strong> En zona de soldadura, tableros trifásicos y tornos.</li>
-       <li><strong>Mesa de Parada de Emergencia:</strong> Seta roja en la entrada de taller.</li>
-       <li><strong>Lavaojos &amp; Botiquín Químico:</strong> Taller de Máquinas Eléctricas.</li>
-      </ul>
-      <div class="plan-section-head">🚨 Plan de Evacuación &amp; Protocolo</div>
-      <ul class="plan-list">
-       <li><strong>Protocolo Especial:</strong> Presionar botón rojo de apagado general de maquinaria antes de abandonar el área.</li>
-       <li><strong>Ruta de Evacuación:</strong> Portón posterior de carga directo a la Zona Abierta Norte.</li>
-       <li><strong>Punto de Encuentro Seguro:</strong> Espacio Abierto Zona Norte (Cercano a Portón Vehicular).</li>
-      </ul>
-     </div>
     </div>
+
     <div class="block-card-expandable" onclick="toggleBlock(this)">
-     <div class="block-header-clickable">
-      <div class="block-title-group">
-       <span class="block-title">🚗 Bloque 5: Ingeniería Automotriz</span> <span class="block-subtitle">Talleres de Dinamometría, Autotrónica y Fosas</span>
+      <div class="block-header-clickable">
+        <div class="block-title-group">
+          <span class="block-title">🚗 Bloque 5: Ingeniería Automotriz</span>
+          <span class="block-subtitle">Talleres de Dinamometría, Autotrónica y Fosas</span>
+        </div>
+        <span class="arrow-icon">▼</span>
       </div>
-      <span class="arrow-icon">▼</span>
-     </div>
-     <div class="block-details-content">
-      <div class="threat-box threat-hydro">
-       🛠️ <strong>Amenaza Físico-Natural:</strong> Acumulación de gases de combustión e inflamables con riesgo de explosión en sismos.
+      <div class="block-details-content">
+        <div class="threat-box threat-hydro">
+          🛠️ <strong>Amenaza Físico-Natural:</strong> Acumulación de gases de combustión e inflamables con riesgo de explosión en sismos.
+        </div>
+
+        <div class="plan-section-head">📍 Ubicación de Equipos de Emergencia</div>
+        <ul class="plan-list">
+          <li><strong>Extintores PQS (20 lbs) &amp; Balde de Arena:</strong> Cerca de fosas de inspección y almacenamiento de lubricantes.</li>
+          <li><strong>Botiquín de Quemaduras / Traumatismos:</strong> Galpón Central de Automotriz.</li>
+        </ul>
+
+        <div class="plan-section-head">🚨 Plan de Evacuación &amp; Protocolo</div>
+        <ul class="plan-list">
+          <li><strong>Indicación Evacuación:</strong> No utilizar elevadores hidráulicos ni descender a fosas durante un sismo.</li>
+          <li><strong>Ruta de Evacuación:</strong> Salida lateral ancha hacia la Cancha Múltiple #2.</li>
+          <li><strong>Punto de Encuentro Seguro:</strong> Cancha Múltiple #2.</li>
+        </ul>
       </div>
-      <div class="plan-section-head">📍 Ubicación de Equipos de Emergencia</div>
-      <ul class="plan-list">
-       <li><strong>Extintores PQS (20 lbs) &amp; Balde de Arena:</strong> Cerca de fosas de inspección y almacenamiento de lubricantes.</li>
-       <li><strong>Botiquín de Quemaduras / Traumatismos:</strong> Galpón Central de Automotriz.</li>
-      </ul>
-      <div class="plan-section-head">🚨 Plan de Evacuación &amp; Protocolo</div>
-      <ul class="plan-list">
-       <li><strong>Indicación Evacuación:</strong> No utilizar elevadores hidráulicos ni descender a fosas durante un sismo.</li>
-       <li><strong>Ruta de Evacuación:</strong> Salida lateral ancha hacia la Cancha Múltiple #2.</li>
-       <li><strong>Punto de Encuentro Seguro:</strong> Cancha Múltiple #2.</li>
-      </ul>
-     </div>
     </div>
+
     <div class="block-card-expandable" onclick="toggleBlock(this)">
-     <div class="block-header-clickable">
-      <div class="block-title-group">
-       <span class="block-title">📖 Bloque 6: Biblioteca Central &amp; Auditorio</span> <span class="block-subtitle">Salas de Lectura, Archivo Histórico y Magna UTC</span>
+      <div class="block-header-clickable">
+        <div class="block-title-group">
+          <span class="block-title">📖 Bloque 6: Biblioteca Central &amp; Auditorio</span>
+          <span class="block-subtitle">Salas de Lectura, Archivo Histórico y Magna UTC</span>
+        </div>
+        <span class="arrow-icon">▼</span>
       </div>
-      <span class="arrow-icon">▼</span>
-     </div>
-     <div class="block-details-content">
-      <div class="threat-box threat-seismic">
-       📚 <strong>Riesgo Sísmico:</strong> Caída de estanterías pesadas y archivadores. Alto riesgo de aplastamiento en pasillos estrechos.
+      <div class="block-details-content">
+        <div class="threat-box threat-seismic">
+          📚 <strong>Riesgo Sísmico:</strong> Caída de estanterías pesadas y archivadores. Alto riesgo de aplastamiento en pasillos estrechos.
+        </div>
+
+        <div class="plan-section-head">📍 Ubicación de Equipos de Emergencia</div>
+        <ul class="plan-list">
+          <li><strong>Extintores Solkaflam / PQS:</strong> Entrada del Auditorio, recepción y zona de computadoras de consulta.</li>
+          <li><strong>Luces de Emergencia Autónomas:</strong> Activación automática en pasillos y salidas del auditorio.</li>
+        </ul>
+
+        <div class="plan-section-head">🚨 Plan de Evacuación &amp; Protocolo</div>
+        <ul class="plan-list">
+          <li><strong>Acción Sísmica:</strong> Agacharse, cubrirse y sujetarse bajo mesas de lectura pesadas hasta que cese el movimiento.</li>
+          <li><strong>Ruta de Evacuación:</strong> Puertas dobles de salida de emergencia del Auditorio y Biblioteca.</li>
+          <li><strong>Punto de Encuentro Seguro:</strong> Zona Verde Central del Campus.</li>
+        </ul>
       </div>
-      <div class="plan-section-head">📍 Ubicación de Equipos de Emergencia</div>
-      <ul class="plan-list">
-       <li><strong>Extintores Solkaflam / PQS:</strong> Entrada del Auditorio, recepción y zona de computadoras de consulta.</li>
-       <li><strong>Luces de Emergencia Autónomas:</strong> Activación automática en pasillos y salidas del auditorio.</li>
-      </ul>
-      <div class="plan-section-head">🚨 Plan de Evacuación &amp; Protocolo</div>
-      <ul class="plan-list">
-       <li><strong>Acción Sísmica:</strong> Agacharse, cubrirse y sujetarse bajo mesas de lectura pesadas hasta que cese el movimiento.</li>
-       <li><strong>Ruta de Evacuación:</strong> Puertas dobles de salida de emergencia del Auditorio y Biblioteca.</li>
-       <li><strong>Punto de Encuentro Seguro:</strong> Zona Verde Central del Campus.</li>
-      </ul>
-     </div>
     </div>
+
     <div class="block-card-expandable" onclick="toggleBlock(this)">
-     <div class="block-header-clickable">
-      <div class="block-title-group">
-       <span class="block-title">🩺 Bloque 7: Centro Médico &amp; Bienestar</span> <span class="block-subtitle">Dispensario, Odontología y Orientación</span>
+      <div class="block-header-clickable">
+        <div class="block-title-group">
+          <span class="block-title">🩺 Bloque 7: Centro Médico &amp; Bienestar</span>
+          <span class="block-subtitle">Dispensario, Odontología y Orientación</span>
+        </div>
+        <span class="arrow-icon">▼</span>
       </div>
-      <span class="arrow-icon">▼</span>
-     </div>
-     <div class="block-details-content">
-      <div class="threat-box threat-volcano">
-       🚑 <strong>Centro Primario de Triaje:</strong> Punto focal para la recepción de heridos en caso de desastre volcánico o sísmico.
+      <div class="block-details-content">
+        <div class="threat-box threat-volcano">
+          🚑 <strong>Centro Primario de Triaje:</strong> Punto focal para la recepción de heridos en caso de desastre volcánico o sísmico.
+        </div>
+
+        <div class="plan-section-head">📍 Ubicación de Equipos de Emergencia</div>
+        <ul class="plan-list">
+          <li><strong>Maletín de Rescate Avanzado, Tanque de Oxígeno y Desfibrilador (DEA):</strong> Consultorio 1 de Medicina General.</li>
+          <li><strong>Camillas Rígidas de Traslado:</strong> En área de enfermería.</li>
+        </ul>
+
+        <div class="plan-section-head">🚨 Plan de Evacuación &amp; Protocolo</div>
+        <ul class="plan-list">
+          <li><strong>Evacuación de Pacientes:</strong> El personal médico lidera la evacuación asistida de pacientes en observación.</li>
+          <li><strong>Ruta de Evacuación:</strong> Acceso directo a la zona de parqueo de Ambulancias en Entrada Sur.</li>
+          <li><strong>Punto de Encuentro / Triaje General:</strong> Zona de Parqueo Sur.</li>
+        </ul>
       </div>
-      <div class="plan-section-head">📍 Ubicación de Equipos de Emergencia</div>
-      <ul class="plan-list">
-       <li><strong>Maletín de Rescate Avanzado, Tanque de Oxígeno y Desfibrilador (DEA):</strong> Consultorio 1 de Medicina General.</li>
-       <li><strong>Camillas Rígidas de Traslado:</strong> En área de enfermería.</li>
-      </ul>
-      <div class="plan-section-head">🚨 Plan de Evacuación &amp; Protocolo</div>
-      <ul class="plan-list">
-       <li><strong>Evacuación de Pacientes:</strong> El personal médico lidera la evacuación asistida de pacientes en observación.</li>
-       <li><strong>Ruta de Evacuación:</strong> Acceso directo a la zona de parqueo de Ambulancias en Entrada Sur.</li>
-       <li><strong>Punto de Encuentro / Triaje General:</strong> Zona de Parqueo Sur.</li>
-      </ul>
-     </div>
     </div>
+
     <div class="block-card-expandable" onclick="toggleBlock(this)">
-     <div class="block-header-clickable">
-      <div class="block-title-group">
-       <span class="block-title">⚽ Bloque 8: Complejo Deportivo &amp; Áreas Verdes</span> <span class="block-subtitle">Estadio, Pista Atlética y Punto Seguro</span>
+      <div class="block-header-clickable">
+        <div class="block-title-group">
+          <span class="block-title">⚽ Bloque 8: Complejo Deportivo &amp; Áreas Verdes</span>
+          <span class="block-subtitle">Estadio, Pista Atlética y Punto Seguro</span>
+        </div>
+        <span class="arrow-icon">▼</span>
       </div>
-      <span class="arrow-icon">▼</span>
-     </div>
-     <div class="block-details-content">
-      <div class="threat-box threat-hydro">
-       🛡️ <strong>Zona de Refugio Principal del Campus:</strong> Libre de postes de alto voltaje, edificaciones colapsables y árboles de gran tamaño.
+      <div class="block-details-content">
+        <div class="threat-box threat-hydro">
+          🛡️ <strong>Zona de Refugio Principal del Campus:</strong> Libre de postes de alto voltaje, edificaciones colapsables y árboles de gran tamaño.
+        </div>
+
+        <div class="plan-section-head">📍 Equipamiento de Emergencia en la Zona</div>
+        <ul class="plan-list">
+          <li><strong>Punto de Mando Unificado (PMU):</strong> Instalación de carpas de socorro en la Pista Atlética.</li>
+          <li><strong>Toma de Agua Contra Incendios (Hidrante):</strong> Costado occidental del estadio.</li>
+        </ul>
+
+        <div class="plan-section-head">🚨 Protocolo de Permanencia</div>
+        <ul class="plan-list">
+          <li><strong>Instrucciones:</strong> Permanecer agrupados por curso/carrera en la hierba del campo de fútbol.</li>
+          <li><strong>Coordinación:</strong> Ingenieros y Brigadistas pasan lista utilizando esta aplicación web.</li>
+        </ul>
       </div>
-      <div class="plan-section-head">📍 Equipamiento de Emergencia en la Zona</div>
-      <ul class="plan-list">
-       <li><strong>Punto de Mando Unificado (PMU):</strong> Instalación de carpas de socorro en la Pista Atlética.</li>
-       <li><strong>Toma de Agua Contra Incendios (Hidrante):</strong> Costado occidental del estadio.</li>
-      </ul>
-      <div class="plan-section-head">🚨 Protocolo de Permanencia</div>
-      <ul class="plan-list">
-       <li><strong>Instrucciones:</strong> Permanecer agrupados por curso/carrera en la hierba del campo de fútbol.</li>
-       <li><strong>Coordinación:</strong> Ingenieros y Brigadistas pasan lista utilizando esta aplicación web.</li>
-      </ul>
-     </div>
     </div>
    </div>
+
    <!-- 5. PERFIL DE USUARIO Y MODO ADMIN -->
    <div id="tab-usuario" class="tab-content">
     <div class="section-title">Perfil de Usuario</div>
     <div class="section-subtitle">Resumen de tu cuenta y ajustes de administración.</div>
+
     <div class="profile-card-view">
-     <img id="user-tab-avatar" src="https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&amp;fit=crop&amp;w=300&amp;q=80" class="profile-header-avatar" alt="Foto">
-     <h3 id="user-tab-nombre">Usuario UTCino</h3>
-     <p id="user-tab-rol" style="color: var(--accent); font-size: 0.85rem; margin-bottom: 12px;">Sin registro previo</p>
-     <div class="detail-item full-width" style="margin-bottom: 15px; text-align: left;">
-      <label>Estado del Sistema</label> <span id="user-tab-status">Activo / En línea</span>
-     </div>
-     <button id="btn-unlock-admin" class="action-card-btn admin-btn" style="width: 100%; justify-content: center;" onclick="promptAdminCode()">🔑 Entrar como Administrador</button>
+      <img id="user-tab-avatar" src="https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=300&q=80" class="profile-header-avatar" alt="Foto">
+      <h3 id="user-tab-nombre">Usuario UTCino</h3>
+      <p id="user-tab-rol" style="color: var(--accent); font-size: 0.85rem; margin-bottom: 12px;">Sin registro previo</p>
+      
+      <div class="detail-item full-width" style="margin-bottom: 15px; text-align: left;">
+        <label>Estado del Sistema</label>
+        <span id="user-tab-status">Activo / En línea</span>
+      </div>
+
+      <button id="btn-unlock-admin" class="action-card-btn admin-btn" style="width: 100%; justify-content: center;" onclick="promptAdminCode()">
+        🔑 Entrar como Administrador
+      </button>
     </div>
+
     <div id="admin-panel-section" style="display: none; margin-top: 20px;">
-     <div class="section-title" style="color: #34d399;">⚙️ Panel de Administración</div>
-     <div class="admin-card">
-      <h4>🔑 Código de Acceso para Ingenieros</h4>
-      <p style="font-size:0.8rem; color:#a7f3d0; margin-bottom:10px;">Modifica la clave que ingresarían los ingenieros:</p>
-      <input type="text" id="admin-teacher-key-input" class="form-control" style="margin-bottom: 8px;">
-      <button class="btn-submit btn-admin" onclick="saveNewTeacherKey()">Guardar Nuevo Código Ingenieros</button>
-     </div>
-     <div class="admin-card">
-      <h4>📚 Agregar Nueva Carrera / Facultad</h4>
-      <p style="font-size:0.8rem; color:#a7f3d0; margin-bottom:10px;">Genera de 1ro a 8vo semestre automáticamente:</p>
-      <input type="text" id="admin-new-carrera-input" class="form-control" placeholder="Ej. Ingeniería Mecatrónica" style="margin-bottom: 8px;">
-      <button class="btn-submit btn-admin" onclick="addNewCarrera()">+ Agregar Carrera</button>
-     </div>
-     <!-- BOTÓN DE BORRADO EXCLUSIVO DE ADMINS -->
-     <div class="admin-card danger-zone">
-      <h4>⚠️ Zona Peligrosa (Administración)</h4>
-      <p style="font-size:0.8rem; color:#fca5a5; margin-bottom:10px;">Elimina todos los datos guardados y reinicia la aplicación a su estado inicial de fábrica.</p>
-      <button class="action-card-btn danger-btn" style="width: 100%; justify-content: center;" onclick="resetAllAppStorage()">🗑️ Borrar Todo / Reiniciar Sistema</button>
-     </div>
+      <div class="section-title" style="color: #34d399;">⚙️ Panel de Administración</div>
+
+      <div class="admin-card">
+        <h4>🔑 Código de Acceso para Ingenieros</h4>
+        <p style="font-size:0.8rem; color:#a7f3d0; margin-bottom:10px;">Modifica la clave que ingresarían los ingenieros:</p>
+        <input type="text" id="admin-teacher-key-input" class="form-control" style="margin-bottom: 8px;">
+        <button class="btn-submit btn-admin" onclick="saveNewTeacherKey()">Guardar Nuevo Código Ingenieros</button>
+      </div>
+
+      <div class="admin-card">
+        <h4>📚 Agregar Nueva Carrera / Facultad</h4>
+        <p style="font-size:0.8rem; color:#a7f3d0; margin-bottom:10px;">Genera de 1ro a 8vo semestre automáticamente:</p>
+        <input type="text" id="admin-new-carrera-input" class="form-control" placeholder="Ej. Ingeniería Mecatrónica" style="margin-bottom: 8px;">
+        <button class="btn-submit btn-admin" onclick="addNewCarrera()">+ Agregar Carrera</button>
+      </div>
+
+      <!-- BOTÓN DE BORRADO EXCLUSIVO DE ADMINS -->
+      <div class="admin-card danger-zone">
+        <h4>⚠️ Zona Peligrosa (Administración)</h4>
+        <p style="font-size:0.8rem; color:#fca5a5; margin-bottom:10px;">Elimina todos los datos guardados y reinicia la aplicación a su estado inicial de fábrica.</p>
+        <button class="action-card-btn danger-btn" style="width: 100%; justify-content: center;" onclick="resetAllAppStorage()">
+          🗑️ Borrar Todo / Reiniciar Sistema
+        </button>
+      </div>
     </div>
    </div>
+
    <!-- NAV INFERIOR -->
    <nav class="bottom-nav">
     <button class="nav-btn active" onclick="switchTab('inicio', this)"><span class="nav-icon">🏠</span> <span>INICIO</span></button>
@@ -1006,6 +1125,7 @@
     <button id="nav-usuario" class="nav-btn" onclick="switchTab('usuario', this)"><span class="nav-icon">👤</span> <span>USUARIO</span></button>
    </nav>
   </div>
+
   <script>
     localStorage.removeItem('utc_students_list'); 
 
