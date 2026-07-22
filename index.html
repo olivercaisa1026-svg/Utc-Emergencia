@@ -300,6 +300,12 @@
       font-size: 1rem;
       cursor: pointer;
       box-shadow: 0 4px 12px rgba(14, 165, 233, 0.3);
+      text-align: center;
+    }
+
+    .btn-submit.btn-call-emergency {
+      background: linear-gradient(135deg, #ef4444, #dc2626);
+      box-shadow: 0 4px 12px rgba(239, 68, 68, 0.4);
     }
 
     .btn-submit.btn-admin {
@@ -598,6 +604,8 @@
       max-width: 380px;
       padding: 20px;
       position: relative;
+      max-height: 90vh;
+      overflow-y: auto;
     }
 
     .close-modal {
@@ -726,10 +734,21 @@
        <label>Foto de Perfil</label>
        <div class="file-upload-box">
         <span>📷 Toca para subir tu foto</span> 
-        <input type="file" id="input-foto" accept="image/*" onchange="previewImage(this)">
+        <input type="file" id="input-foto" accept="image/*" onchange="previewImage(this, 'preview-foto', 'fotoBase64')">
        </div>
        <img id="preview-foto" class="upload-preview" alt="Foto">
       </div>
+
+      <!-- NUEVO CAMPO: CROQUIS USANDO LA CÁMARA O ARCHIVO -->
+      <div class="form-group">
+       <label>🗺️ Croquis / Foto de Evacuación (Ubicación)</label>
+       <div class="file-upload-box">
+        <span>📸 Usar Cámara / Subir Croquis</span> 
+        <input type="file" id="input-croquis" accept="image/*" capture="environment" onchange="previewImage(this, 'preview-croquis', 'croquisBase64')">
+       </div>
+       <img id="preview-croquis" class="upload-preview" alt="Croquis">
+      </div>
+
       <div class="form-group">
        <label>Contacto de Emergencia</label> 
        <input type="text" id="input-contacto-nom" class="form-control" placeholder="Nombre (Ej. Mamá)" required>
@@ -758,6 +777,10 @@
       </div>
       <div class="detail-item full-width">
        <label>Contacto Emergencia</label><span id="view-contacto">--</span>
+      </div>
+      <div class="detail-item full-width" id="view-croquis-box" style="display:none; text-align:center;">
+       <label>Croquis Guardado</label>
+       <img id="view-croquis-img" src="" style="width:100%; max-height:180px; object-fit:cover; border-radius:8px; margin-top:6px;" alt="Croquis Evacuación">
       </div>
      </div>
      <button class="action-card-btn" style="margin-top: 20px; justify-content: center; width: 100%;" onclick="enableEditMode()">✏️ EDITAR MI FICHA</button>
@@ -791,7 +814,7 @@
     <div id="students-container"></div>
    </div>
 
-   <!-- MODAL FICHA DETALLADA -->
+   <!-- MODAL FICHA DETALLADA (OPCIÓN PARA QUE ADMINISTRADORES Y DOCENTES LLAMEN) -->
    <div id="student-modal" class="modal-overlay">
     <div class="modal-content profile-card-view">
      <button class="close-modal" onclick="closeStudentModal()">×</button>
@@ -808,8 +831,12 @@
       <div class="detail-item full-width">
        <label>Contacto Emergencia</label><span id="modal-student-contact">--</span>
       </div>
+      <div class="detail-item full-width" id="modal-student-croquis-container" style="display:none; text-align:center;">
+       <label>Croquis de Ubicación</label>
+       <img id="modal-student-croquis" src="" style="width:100%; max-height:180px; object-fit:cover; border-radius:8px; margin-top:6px;" alt="Croquis Alumno">
+      </div>
      </div>
-     <a id="modal-student-call" href="#" class="btn-submit" style="margin-top: 16px; text-decoration: none; display: block;">📞 Llamar Emergencia</a>
+     <a id="modal-student-call" href="#" class="btn-submit btn-call-emergency" style="margin-top: 16px; text-decoration: none; display: flex; align-items: center; justify-content: center; gap: 8px;">📞 LLAMAR CONTACTO DE EMERGENCIA</a>
     </div>
    </div>
 
@@ -1102,6 +1129,7 @@
     let studentsList = [];
     let userData = JSON.parse(localStorage.getItem('utc_user_data')) || null;
     let fotoBase64 = "";
+    let croquisBase64 = "";
 
     document.addEventListener('DOMContentLoaded', () => {
       document.getElementById('admin-teacher-key-input').value = currentTeacherKey;
@@ -1201,15 +1229,17 @@
       if(btn) btn.classList.add('active');
     }
 
-    function previewImage(input) {
+    // PREVISUALIZACIÓN GENÉRICA PARA FOTO Y CROQUIS
+    function previewImage(input, previewId, targetVar) {
       const file = input.files[0];
       if (file) {
         const reader = new FileReader();
         reader.onload = function(e) {
-          const imgElement = document.getElementById('preview-foto');
+          const imgElement = document.getElementById(previewId);
           imgElement.src = e.target.result;
           imgElement.style.display = 'block';
-          fotoBase64 = e.target.result;
+          if(targetVar === 'fotoBase64') fotoBase64 = e.target.result;
+          if(targetVar === 'croquisBase64') croquisBase64 = e.target.result;
         };
         reader.readAsDataURL(file);
       }
@@ -1234,6 +1264,7 @@
           nombre: document.getElementById('input-nombre').value,
           cedula: document.getElementById('input-cedula').value,
           foto: fotoBase64 || "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=300&q=80",
+          croquis: croquisBase64 || "",
           carrera: "Docente / Ingeniero Autorizado",
           cursosDocente: cursosSeleccionados,
           contactoNom: document.getElementById('input-contacto-nom').value,
@@ -1246,6 +1277,7 @@
           nombre: document.getElementById('input-nombre').value,
           cedula: document.getElementById('input-cedula').value,
           foto: fotoBase64 || "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=300&q=80",
+          croquis: croquisBase64 || "",
           carrera: document.getElementById('input-carrera-student').value,
           ciclo: document.getElementById('input-ciclo-student').value,
           contactoNom: document.getElementById('input-contacto-nom').value,
@@ -1288,6 +1320,13 @@
       document.getElementById('view-carrera-text').innerText = userData.carrera;
       document.getElementById('view-rol').innerText = userData.rol;
       document.getElementById('view-cedula').innerText = userData.cedula;
+
+      if(userData.croquis) {
+        document.getElementById('view-croquis-box').style.display = 'block';
+        document.getElementById('view-croquis-img').src = userData.croquis;
+      } else {
+        document.getElementById('view-croquis-box').style.display = 'none';
+      }
 
       if(userData.rol === 'Ingeniero' || isAdminUnlocked) {
         document.getElementById('view-cursos-label').innerText = "Cursos Asignados";
@@ -1360,7 +1399,16 @@
       document.getElementById('modal-student-cedula').innerText = student.cedula;
       document.getElementById('modal-student-ciclo').innerText = student.ciclo || "N/A";
       document.getElementById('modal-student-contact').innerText = `${student.contactoNom} (${student.contactoTel})`;
+      
+      // BOTÓN DIRECTO DE LLAMADA DE EMERGENCIA PARA ADMINISTRADORES O DOCENTES
       document.getElementById('modal-student-call').href = `tel:${student.contactoTel}`;
+
+      if(student.croquis) {
+        document.getElementById('modal-student-croquis-container').style.display = 'block';
+        document.getElementById('modal-student-croquis').src = student.croquis;
+      } else {
+        document.getElementById('modal-student-croquis-container').style.display = 'none';
+      }
 
       document.getElementById('student-modal').style.display = 'flex';
     }
