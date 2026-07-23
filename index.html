@@ -1132,19 +1132,35 @@
     let fotoBase64 = "";
     let croquisBase64 = "";
 
-    // FUNCIÓN DE LLAMADA DIRECTA SEGURO (Limpia espacios/guiones)
+    // FUNCIÓN DE LLAMADA COMPATIBLE CON APPMINT
     function makePhoneCall(phoneNumber) {
       if (!phoneNumber) {
         alert("⚠️ No hay un número de teléfono válido para realizar la llamada.");
         return;
       }
-      // Deja solo dígitos y el signo + si existe
+      
       const cleanedNumber = String(phoneNumber).replace(/[^0-9+]/g, '');
       if (cleanedNumber.length === 0) {
         alert("⚠️ El número ingresado no contiene dígitos válidos.");
         return;
       }
-      window.location.href = `tel:${cleanedNumber}`;
+
+      // Enlace dinámico con target="_system" (requerido por AppMint/WebViews)
+      const a = document.createElement('a');
+      a.href = `tel:${cleanedNumber}`;
+      a.target = '_system';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+
+      // Métodos de respaldo por compatibilidad
+      setTimeout(() => {
+        try {
+          window.open(`tel:${cleanedNumber}`, '_system');
+        } catch(e) {
+          window.location.href = `tel:${cleanedNumber}`;
+        }
+      }, 100);
     }
 
     document.addEventListener('DOMContentLoaded', () => {
@@ -1414,9 +1430,9 @@
       document.getElementById('modal-student-ciclo').innerText = student.ciclo || "N/A";
       document.getElementById('modal-student-contact').innerText = `${student.contactoNom} (${student.contactoTel})`;
       
-      // BOTÓN MODAL CON FUNCIÓN DIRECTA
       const callBtn = document.getElementById('modal-btn-call');
-      callBtn.onclick = function() {
+      callBtn.onclick = function(e) {
+        if(e) e.preventDefault();
         makePhoneCall(student.contactoTel);
       };
 
