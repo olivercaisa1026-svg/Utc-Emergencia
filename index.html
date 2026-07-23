@@ -186,12 +186,6 @@
       background: rgba(153, 27, 27, 0.15);
     }
 
-    .action-card-btn.admin-btn {
-      color: #34d399;
-      border-color: #065f46;
-      background: rgba(6, 95, 70, 0.2);
-    }
-
     .section-title {
       font-size: 1.3rem;
       font-weight: 700;
@@ -301,6 +295,8 @@
       cursor: pointer;
       box-shadow: 0 4px 12px rgba(14, 165, 233, 0.3);
       text-align: center;
+      display: inline-block;
+      text-decoration: none;
     }
 
     .btn-submit.btn-call-emergency {
@@ -380,10 +376,6 @@
       margin-bottom: 8px;
     }
 
-    .admin-card.danger-zone h4 {
-      color: #fca5a5;
-    }
-
     .block-card-expandable {
       background: var(--bg-card);
       border: 1px solid var(--border-color);
@@ -406,10 +398,6 @@
       cursor: pointer;
       user-select: none;
       background: rgba(255,255,255,0.02);
-    }
-
-    .block-header-clickable:hover {
-      background: rgba(255,255,255,0.05);
     }
 
     .block-title-group {
@@ -486,9 +474,6 @@
       margin-top: 14px;
       margin-bottom: 6px;
       letter-spacing: 0.5px;
-      display: flex;
-      align-items: center;
-      gap: 6px;
     }
 
     .plan-list {
@@ -582,6 +567,7 @@
       align-items: center;
       gap: 4px;
       cursor: pointer;
+      text-decoration: none;
     }
 
     .modal-overlay {
@@ -656,6 +642,7 @@
  </head>
  <body>
   <div class="app-frame">
+
    <!-- 1. INICIO -->
    <div id="tab-inicio" class="tab-content active">
     <div class="banner-hero">
@@ -675,13 +662,15 @@
      <div class="action-card-btn" onclick="switchTab('protocolos', document.getElementById('nav-protocolos'))">
       <span>🗺️ BLOQUES DEL CAMPUS &amp; RUTAS</span> <span>➔</span>
      </div>
-     <button class="action-card-btn danger-btn" onclick="makePhoneCall('911')">
+     
+     <!-- LLAMADA DIRECTA AL ECU 911 (ABRE APLICACIÓN DEL TELÉFONO) -->
+     <a class="action-card-btn danger-btn" href="tel:911" onclick="executeDial('911', event)">
       <span>🚨 LLAMAR AL ECU 911 (URGENCIA)</span> <span>📞</span>
-     </button>
+     </a>
     </div>
    </div>
 
-   <!-- 2. FICHA MÉDICA / INFORMACIÓN -->
+   <!-- 2. FICHA MÉDICA -->
    <div id="tab-informacion" class="tab-content">
     <div class="section-title">Ficha Médica de Emergencia</div>
     <div class="section-subtitle">Completa tus datos para respuesta en campus.</div>
@@ -814,7 +803,7 @@
     <div id="students-container"></div>
    </div>
 
-   <!-- MODAL FICHA DETALLADA DE ESTUDIANTE -->
+   <!-- MODAL ESTUDIANTE -->
    <div id="student-modal" class="modal-overlay">
     <div class="modal-content profile-card-view">
      <button class="close-modal" onclick="closeStudentModal()">×</button>
@@ -836,7 +825,7 @@
        <img id="modal-student-croquis" src="" style="width:100%; max-height:180px; object-fit:cover; border-radius:8px; margin-top:6px;" alt="Croquis Alumno">
       </div>
      </div>
-     <button id="modal-btn-call" class="btn-submit btn-call-emergency" style="margin-top: 16px;">📞 LLAMAR CONTACTO DE EMERGENCIA</button>
+     <a id="modal-btn-call" class="btn-submit btn-call-emergency" style="margin-top: 16px;" href="#">📞 LLAMAR CONTACTO DE EMERGENCIA</a>
     </div>
    </div>
 
@@ -1066,7 +1055,7 @@
     </div>
    </div>
 
-   <!-- 5. PERFIL DE USUARIO Y MODO ADMIN -->
+   <!-- 5. PERFIL DE USUARIO Y ADMIN -->
    <div id="tab-usuario" class="tab-content">
     <div class="section-title">Perfil de Usuario</div>
     <div class="section-subtitle">Resumen de tu cuenta y ajustes de administración.</div>
@@ -1131,27 +1120,24 @@
     let fotoBase64 = "";
     let croquisBase64 = "";
 
-    // FUNCIÓN DE LLAMADA DIRECTA AL MARCADOR / APP TELÉFONO NATIVA
-    function makePhoneCall(phoneNumber) {
-      if (!phoneNumber) {
-        alert("⚠️ No hay un número de teléfono ingresado.");
-        return;
-      }
+    // FUNCIÓN DE LLAMADA GARANTIZADA QUE ABRE LA APP DEL TELÉFONO
+    function executeDial(phoneNumber, event) {
+      if (!phoneNumber) return;
       
-      const cleanedNumber = String(phoneNumber).replace(/[^0-9+]/g, '');
-      if (cleanedNumber.length === 0) {
-        alert("⚠️ El número ingresado no es válido.");
-        return;
-      }
+      const cleanNum = String(phoneNumber).replace(/[^0-9+]/g, '');
+      if (!cleanNum) return;
 
-      // Método 1: Intent nativo para Android / iOS dentro de AppMint
-      // Forzar la redirección del navegador a la aplicación del marcador telefónico
-      const telUri = `tel:${cleanedNumber}`;
-      
+      const telUri = `tel:${cleanNum}`;
+      const androidIntent = `intent://${cleanNum}#Intent;scheme=tel;action=android.intent.action.DIAL;end`;
+
+      // Intentar forzar la aplicación de llamadas por el sistema nativo
       try {
-        window.location.href = telUri;
+        if (/Android/i.test(navigator.userAgent)) {
+          window.location.href = androidIntent;
+        } else {
+          window.location.href = telUri;
+        }
       } catch (e) {
-        // Método 2 (Fallback): si la WebView bloquea la navegación de ventana principal
         window.open(telUri, '_system');
       }
     }
@@ -1317,10 +1303,10 @@
         }
         localStorage.setItem('utc_user_data', JSON.stringify(userData));
         renderRegisteredState();
-        alert('¡Ficha Médica guardada con éxito en la Nube de Firebase!');
+        alert('¡Ficha Médica guardada con éxito!');
       } catch (err) {
-        console.error("Error guardando en Firestore: ", err);
-        alert('⚠️ Ocurrió un detalle al conectar con la base de datos, pero guardamos la ficha localmente.');
+        console.error("Error guardando datos: ", err);
+        alert('⚠️ Guardado en memoria local.');
       }
     });
 
@@ -1396,7 +1382,9 @@
         return;
       }
 
-      container.innerHTML = list.map((student, index) => `
+      container.innerHTML = list.map((student, index) => {
+        const cleanTel = student.contactoTel ? String(student.contactoTel).replace(/[^0-9+]/g, '') : '';
+        return `
         <div class="student-card" onclick="openStudentModal(${index})">
           <img src="${student.foto || 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=300&q=80'}" alt="${student.nombre}">
           <div class="student-info">
@@ -1405,16 +1393,19 @@
             <p>📚 ${student.carrera}</p>
             <span class="student-badge">${student.ciclo || 'Registrado'}</span>
           </div>
-          <button class="call-btn-mini" onclick="event.stopPropagation(); makePhoneCall('${student.contactoTel}')" title="Llamar a ${student.contactoNom}">
+          <!-- ENLACE DIRECTO PARA ABRIR TELÉFONO DEL ESTUDIANTE -->
+          <a class="call-btn-mini" href="tel:${cleanTel}" onclick="event.stopPropagation(); executeDial('${cleanTel}', event)" title="Llamar a ${student.contactoNom}">
             📞 ${student.contactoNom ? student.contactoNom.split(' ')[0] : 'Contacto'}
-          </button>
+          </a>
         </div>
-      `).join('');
+      `}).join('');
     }
 
     function openStudentModal(index) {
       const student = studentsList[index];
       if(!student) return;
+
+      const cleanTel = student.contactoTel ? String(student.contactoTel).replace(/[^0-9+]/g, '') : '';
 
       document.getElementById('modal-student-img').src = student.foto || "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=300&q=80";
       document.getElementById('modal-student-name').innerText = student.nombre;
@@ -1424,9 +1415,9 @@
       document.getElementById('modal-student-contact').innerText = `${student.contactoNom} (${student.contactoTel})`;
       
       const callBtn = document.getElementById('modal-btn-call');
+      callBtn.href = `tel:${cleanTel}`;
       callBtn.onclick = function(e) {
-        if(e) e.preventDefault();
-        makePhoneCall(student.contactoTel);
+        executeDial(cleanTel, e);
       };
 
       if(student.croquis) {
