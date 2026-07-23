@@ -1131,10 +1131,10 @@
     let fotoBase64 = "";
     let croquisBase64 = "";
 
-    // FUNCIÓN DE LLAMADA SOLUCIONADA PARA APPMINT / WEBVIEW
+    // FUNCIÓN DE LLAMADA DIRECTA AL MARCADOR / APP TELÉFONO NATIVA
     function makePhoneCall(phoneNumber) {
       if (!phoneNumber) {
-        alert("⚠️ No hay un número de teléfono válido.");
+        alert("⚠️ No hay un número de teléfono ingresado.");
         return;
       }
       
@@ -1144,24 +1144,16 @@
         return;
       }
 
-      const telUrl = `tel:${cleanedNumber}`;
-
-      // Crear enlace dinámico transparente
-      const link = document.createElement('a');
-      link.href = telUrl;
-      link.target = '_system'; // Pasa el evento al Dialer del sistema operativo
-      link.rel = 'noopener noreferrer';
-      document.body.appendChild(link);
+      // Método 1: Intent nativo para Android / iOS dentro de AppMint
+      // Forzar la redirección del navegador a la aplicación del marcador telefónico
+      const telUri = `tel:${cleanedNumber}`;
       
-      // Disparar click nativo
-      link.click();
-      
-      // Limpiar del DOM
-      setTimeout(() => {
-        if (document.body.contains(link)) {
-          document.body.removeChild(link);
-        }
-      }, 300);
+      try {
+        window.location.href = telUri;
+      } catch (e) {
+        // Método 2 (Fallback): si la WebView bloquea la navegación de ventana principal
+        window.open(telUri, '_system');
+      }
     }
 
     document.addEventListener('DOMContentLoaded', () => {
