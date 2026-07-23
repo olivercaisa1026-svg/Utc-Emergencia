@@ -740,7 +740,6 @@
        <img id="preview-foto" class="upload-preview" alt="Foto">
       </div>
 
-      <!-- CAMPO CROQUIS CON CÁMARA/ARCHIVO -->
       <div class="form-group">
        <label>🗺️ Croquis / Foto de Evacuación (Ubicación)</label>
        <div class="file-upload-box">
@@ -1132,35 +1131,37 @@
     let fotoBase64 = "";
     let croquisBase64 = "";
 
-    // FUNCIÓN DE LLAMADA COMPATIBLE CON APPMINT
+    // FUNCIÓN DE LLAMADA SOLUCIONADA PARA APPMINT / WEBVIEW
     function makePhoneCall(phoneNumber) {
       if (!phoneNumber) {
-        alert("⚠️ No hay un número de teléfono válido para realizar la llamada.");
+        alert("⚠️ No hay un número de teléfono válido.");
         return;
       }
       
       const cleanedNumber = String(phoneNumber).replace(/[^0-9+]/g, '');
       if (cleanedNumber.length === 0) {
-        alert("⚠️ El número ingresado no contiene dígitos válidos.");
+        alert("⚠️ El número ingresado no es válido.");
         return;
       }
 
-      // Enlace dinámico con target="_system" (requerido por AppMint/WebViews)
-      const a = document.createElement('a');
-      a.href = `tel:${cleanedNumber}`;
-      a.target = '_system';
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
+      const telUrl = `tel:${cleanedNumber}`;
 
-      // Métodos de respaldo por compatibilidad
+      // Crear enlace dinámico transparente
+      const link = document.createElement('a');
+      link.href = telUrl;
+      link.target = '_system'; // Pasa el evento al Dialer del sistema operativo
+      link.rel = 'noopener noreferrer';
+      document.body.appendChild(link);
+      
+      // Disparar click nativo
+      link.click();
+      
+      // Limpiar del DOM
       setTimeout(() => {
-        try {
-          window.open(`tel:${cleanedNumber}`, '_system');
-        } catch(e) {
-          window.location.href = `tel:${cleanedNumber}`;
+        if (document.body.contains(link)) {
+          document.body.removeChild(link);
         }
-      }, 100);
+      }, 300);
     }
 
     document.addEventListener('DOMContentLoaded', () => {
