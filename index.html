@@ -1639,6 +1639,9 @@
       const cicloQuery = document.getElementById('filter-ciclo').value;
       
       const isDefaultView = (textQuery === "" && carreraQuery === "" && cicloQuery === "");
+      
+      // Saber qué rol tiene la persona que está usando la app actualmente
+      const miRol = userData ? userData.rol : 'Estudiante'; 
 
       let sortedList = [...studentsList].sort((a, b) => {
           if (a.rol === 'Administrador' && b.rol !== 'Administrador') return -1;
@@ -1647,16 +1650,22 @@
       });
 
       const filtered = sortedList.filter(s => {
+        // 1. REGLA: Los estudiantes NO pueden ver a otros estudiantes.
+        if (miRol === 'Estudiante' && s.rol === 'Estudiante') {
+            return false; 
+        }
+
+        // 2. REGLA: Los administradores siempre se muestran (si no hay filtro), o se filtran por nombre/cédula.
         if (s.rol === 'Administrador') {
             if (isDefaultView) return true; 
             const matchText = (s.nombre && s.nombre.toLowerCase().includes(textQuery)) || (s.cedula && s.cedula.includes(textQuery));
             return matchText;
         }
 
+        // Si la pantalla está en blanco (sin filtros), ocultamos el resto para no saturar
         if (isDefaultView) return false;
 
-        if (s.rol === 'Estudiante') return false;
-
+        // 3. REGLA: Lógica de Filtro para Ingenieros y Estudiantes
         const matchText = (s.nombre && s.nombre.toLowerCase().includes(textQuery)) || (s.cedula && s.cedula.includes(textQuery));
         
         let matchCarrera = false;
@@ -1675,6 +1684,7 @@
             matchCiclo = true;
         } else {
             if (s.rol === 'Ingeniero') {
+                // Para ingenieros, buscamos si en sus cursos asignados existe el número (Ej: "4to")
                 matchCiclo = s.cursosDocente && Array.isArray(s.cursosDocente) ? s.cursosDocente.some(curso => curso.includes(cicloQuery.split(' ')[0])) : false;
             } else {
                 matchCiclo = s.ciclo === cicloQuery;
@@ -1692,9 +1702,12 @@
       
       const adminCount = list.filter(s => s.rol === 'Administrador').length;
       const engineerCount = list.filter(s => s.rol === 'Ingeniero').length;
+      const studentCount = list.filter(s => s.rol === 'Estudiante').length;
       
-      let countText = `Mostrando ${adminCount} Administrador(es) fijados`;
-      if(engineerCount > 0) countText += ` y ${engineerCount} Docentes(s) encontrados`;
+      // Actualizamos el contador para que también muestre cuántos estudiantes se encontraron
+      let countText = `Mostrando ${adminCount} Administrador(es)`;
+      if(engineerCount > 0) countText += `, ${engineerCount} Docente(s)`;
+      if(studentCount > 0) countText += `, y ${studentCount} Estudiante(s)`;
       
       document.getElementById('students-count').innerText = countText;
 
@@ -1706,7 +1719,6 @@
       container.innerHTML = list.map((student) => {
         const realIndex = studentsList.findIndex(s => s.cedula === student.cedula);
         
-        // Determinar qué número usar para la mini tarjeta (preferimos personal si existe)
         const numToUse = student.telPersonal || student.contactoTel || "";
         const cleanTel = numToUse ? String(numToUse).replace(/[^0-9+]/g, '') : '';
         
@@ -1715,12 +1727,15 @@
         const cardClass = isAdmin ? "student-card admin-card-style" : "student-card";
         const roleLabel = student.rol || 'Estudiante';
         
+        // Mejoramos el texto debajo del nombre para saber si es alumno o maestro
+        const rolDesc = isAdmin ? 'Soporte General' : (student.rol === 'Ingeniero' ? 'Docencia e Ingeniería' : 'Estudiante Matriculado');
+        
         return `
         <div class="${cardClass}" onclick="openStudentModal(${realIndex})">
           <img src="${student.foto || 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=300&q=80'}" alt="${student.nombre}">
           <div class="student-info">
             <h4>${student.nombre} <span class="status-dot">${statusDot}</span></h4>
-            <p>📚 ${isAdmin ? 'Soporte General' : 'Docencia e Ingeniería'}</p>
+            <p>📚 ${rolDesc}</p>
             <span class="student-badge">${isAdmin ? '🛡️ Administrador' : roleLabel}</span>
           </div>
           <button class="call-btn-mini" onclick="event.stopPropagation(); copyNumberToClipboard('${cleanTel}', 'Número copiado al portapapeles: ${cleanTel}')">
