@@ -26,6 +26,7 @@
   </script>
 
   <style>
+    /* VARIABLES Y ESTILOS BASE */
     :root {
       --bg-main: #0f172a;
       --bg-card: #1e293b;
@@ -707,7 +708,6 @@
      <p id="home-welcome-sub">Tu asistente integral de seguridad y respuesta inmediata ante emergencias institucionales.</p>
     </div>
     
-    <!-- BANDEJA DE MENSAJES OFICIALES (Aparece si hay mensajes) -->
     <div id="home-messages" style="padding: 0 16px; margin-bottom: 16px;"></div>
 
     <div class="quick-actions">
@@ -717,7 +717,6 @@
      <div class="action-card-btn" onclick="switchTab('protocolos', document.getElementById('nav-protocolos'))">
       <span>🗺️ BLOQUES DEL CAMPUS &amp; RUTAS</span> <span>➔</span>
      </div>
-     
      <a class="action-card-btn danger-btn" href="tel:911">
       <span>🚨 LLAMAR AL ECU 911 (URGENCIA)</span> <span>📞</span>
      </a>
@@ -777,7 +776,6 @@
        </select>
       </div>
 
-      <!-- CAMPOS DE ESTUDIANTE -->
       <div id="student-fields">
        <div class="form-group">
         <label>Carrera UTC</label> 
@@ -798,7 +796,6 @@
        </div>
       </div>
 
-      <!-- CAMPOS DE DOCENTE -->
       <div id="teacher-fields" style="display: none;">
        <div class="form-group">
         <label>Cursos a Cargo (Semestres 1º al 8º)</label>
@@ -873,7 +870,7 @@
    <!-- 3. DIRECTORIO INSTITUCIONAL -->
    <div id="tab-directorio" class="tab-content">
     <div class="section-title">Directorio del Campus</div>
-    <div class="section-subtitle">Busca administradores, ingenieros o estudiantes en la red.</div>
+    <div class="section-subtitle">Busca administradores, ingenieros o personal en la red.</div>
     <div class="filter-box">
      <input type="text" id="search-student" class="form-control" placeholder="🔍 Buscar nombre o cédula..." oninput="filterStudents()">
      
@@ -881,7 +878,7 @@
         <option value="">Todos los Roles</option>
         <option value="Administrador">Administradores (Soporte)</option>
         <option value="Ingeniero">Ingenieros / Docentes</option>
-        <option value="Estudiante">Estudiantes</option>
+        <option value="Estudiante" id="opt-filter-estudiantes">Estudiantes</option>
      </select>
 
      <div style="display: flex; gap: 8px;">
@@ -936,8 +933,6 @@
      </div>
      <div style="display: flex; flex-direction: column; gap: 10px; margin-top: 16px;">
         <a id="modal-btn-call" class="btn-submit btn-call-emergency" href="#">📞 LLAMAR CONTACTO</a>
-        
-        <!-- BOTON DINAMICO (Solo para enviar msg / reportes) -->
         <button id="modal-btn-message" class="btn-submit btn-message" onclick="sendOfficialMessage()" style="display:none;">✉️ ENVIAR MENSAJE</button>
      </div>
     </div>
@@ -947,8 +942,6 @@
    <div id="tab-protocolos" class="tab-content">
     <div class="section-title">Contenido de Plan</div>
     <div class="section-subtitle">Toca cada bloque para desplegar el Plan de Reconocimiento.</div>
-    
-    <!-- (Los bloques de ejemplo se mantienen igual) -->
     <div class="block-card-expandable" onclick="toggleBlock(this)">
      <div class="block-header-clickable">
       <div class="block-title-group">
@@ -961,18 +954,6 @@
       <div class="threat-box threat-volcano">🌋 <strong>Amenaza Volcánica (Cotopaxi):</strong> Cerrar ventanas herméticamente.</div>
       <div class="plan-section-head">Rutas de Evacuación</div>
       <ul class="plan-list"><li>Dirigirse al Punto de Encuentro A (Patio Central).</li></ul>
-     </div>
-    </div>
-    <div class="block-card-expandable" onclick="toggleBlock(this)">
-     <div class="block-header-clickable">
-      <div class="block-title-group">
-       <span class="block-title">🌳 Bloque 8: Puntos de Encuentro Principales</span> 
-       <span class="block-subtitle">Zonas Seguras</span>
-      </div>
-      <span class="arrow-icon">▼</span>
-     </div>
-     <div class="block-details-content">
-      <div class="threat-box threat-safe">✅ <strong>Zona Segura (Punto de Encuentro Oficial)</strong></div>
      </div>
     </div>
    </div>
@@ -992,7 +973,6 @@
      </div>
     </div>
 
-    <!-- PANEL EXCLUSIVO PARA ADMINISTRADORES -->
     <div id="admin-panel-section" style="display: none; margin-top: 20px;">
      <div class="section-title" style="color: #34d399;">⚙️ Opciones de Administrador</div>
      <div class="admin-card">
@@ -1030,7 +1010,7 @@
       "Sistemas de Información"
     ];
 
-    let studentsList = []; // Ahora guarda Estudiantes, Ingenieros y Administradores
+    let studentsList = []; 
     let userData = JSON.parse(localStorage.getItem('utc_user_data')) || null;
     let fotoBase64 = userData ? userData.foto : "";
     let croquisBase64 = userData ? userData.croquis : "";
@@ -1070,7 +1050,6 @@
     function initFirebaseSync() {
       if (window.dbFuncs && window.db) {
         const { collection, onSnapshot } = window.dbFuncs;
-        // La colección se llama 'estudiantes' en DB, pero almacena todos los usuarios
         onSnapshot(collection(window.db, "estudiantes"), (snapshot) => {
           studentsList = [];
           snapshot.forEach((doc) => {
@@ -1207,7 +1186,7 @@
         codeBox.style.display = 'block';
         codeLabel.innerHTML = '🛡️ Código de Administrador';
         studentFields.style.display = 'none';
-        teacherFields.style.display = 'none'; // Admin no necesita llenar cursos o carrera específica.
+        teacherFields.style.display = 'none'; 
       }
     }
 
@@ -1315,8 +1294,18 @@
       }
     });
 
+    function updateDirectoryUI() {
+        const optEstudiantes = document.getElementById('opt-filter-estudiantes');
+        if (userData && userData.rol === 'Estudiante') {
+            if(optEstudiantes) optEstudiantes.style.display = 'none';
+        } else {
+            if(optEstudiantes) optEstudiantes.style.display = 'block';
+        }
+    }
+
     function renderRegisteredState() {
       if(!userData) return;
+      updateDirectoryUI();
 
       const homeAvatar = document.getElementById('home-avatar-container');
       if (userData.foto) homeAvatar.innerHTML = `<img src="${userData.foto}" alt="Foto Perfil">`;
@@ -1366,6 +1355,7 @@
       document.getElementById('user-tab-status').style.color = "#10b981";
       
       renderMessages();
+      filterStudents(); // Forzar actualización de vista con reglas
     }
 
     function enableEditMode() {
@@ -1405,7 +1395,7 @@
       const cicloQuery = document.getElementById('filter-ciclo').value;
       const rolQuery = document.getElementById('filter-rol').value;
 
-      // Ordenar: Administradores primero
+      // Ordenar: Administradores SIEMPRE de primeros
       let sortedList = [...studentsList].sort((a, b) => {
           if (a.rol === 'Administrador' && b.rol !== 'Administrador') return -1;
           if (b.rol === 'Administrador' && a.rol !== 'Administrador') return 1;
@@ -1413,10 +1403,40 @@
       });
 
       const filtered = sortedList.filter(s => {
+        // REGLA DE PRIVACIDAD: Si soy estudiante y el usuario de la lista es estudiante, ocultarlo
+        if (userData && userData.rol === 'Estudiante' && s.rol === 'Estudiante') {
+            return false;
+        }
+
         const matchText = (s.nombre && s.nombre.toLowerCase().includes(textQuery)) || (s.cedula && s.cedula.includes(textQuery));
-        const matchCarrera = carreraQuery === "" || s.carrera === carreraQuery;
-        const matchCiclo = cicloQuery === "" || s.ciclo === cicloQuery;
+        
+        // FILTRO INTELIGENTE DE CARRERA
+        let matchCarrera = false;
+        if (carreraQuery === "") {
+            matchCarrera = true;
+        } else {
+            // Si es profesor, buscar dentro de sus cursos asignados si incluye el texto de la carrera
+            if (s.rol === 'Ingeniero' && s.cursosDocente && Array.isArray(s.cursosDocente)) {
+                matchCarrera = s.cursosDocente.some(curso => curso.includes(carreraQuery));
+            } else {
+                matchCarrera = s.carrera === carreraQuery;
+            }
+        }
+
+        // FILTRO INTELIGENTE DE CICLO
+        let matchCiclo = false;
+        if (cicloQuery === "") {
+            matchCiclo = true;
+        } else {
+             if (s.rol === 'Ingeniero' && s.cursosDocente && Array.isArray(s.cursosDocente)) {
+                matchCiclo = s.cursosDocente.some(curso => curso.includes(cicloQuery.split(' ')[0])); // busca ej. "1ro"
+             } else {
+                matchCiclo = s.ciclo === cicloQuery;
+             }
+        }
+
         const matchRol = rolQuery === "" || s.rol === rolQuery;
+        
         return matchText && matchCarrera && matchCiclo && matchRol;
       });
 
@@ -1425,10 +1445,10 @@
 
     function renderStudentsList(list) {
       const container = document.getElementById('students-container');
-      document.getElementById('students-count').innerText = `Mostrando ${list.length} de ${studentsList.length} usuarios`;
+      document.getElementById('students-count').innerText = `Mostrando ${list.length} perfiles en tu red`;
 
       if (list.length === 0) {
-        container.innerHTML = `<div style="text-align: center; padding: 30px 10px; color: var(--text-secondary);"><p>☁️ <strong>Sin registros aún</strong></p></div>`;
+        container.innerHTML = `<div style="text-align: center; padding: 30px 10px; color: var(--text-secondary);"><p>☁️ <strong>Sin registros para esta búsqueda</strong></p></div>`;
         return;
       }
 
@@ -1484,21 +1504,18 @@
         document.getElementById('modal-student-croquis-container').style.display = 'none';
       }
 
-      // LÓGICA DE VISIBILIDAD DEL BOTÓN DE MENSAJE
       const msgBtn = document.getElementById('modal-btn-message');
-      msgBtn.style.display = 'none'; // Oculto por defecto
+      msgBtn.style.display = 'none'; 
       
       if (userData) {
           if (userData.rol === 'Administrador' || userData.rol === 'Ingeniero') {
-              // Admin e Ingeniero pueden enviar mensajes a TODOS
               msgBtn.style.display = 'inline-block';
               msgBtn.innerText = '✉️ ENVIAR MENSAJE OFICIAL';
               msgBtn.className = "btn-submit btn-message";
           } else if (userData.rol === 'Estudiante' && targetUser.rol === 'Administrador') {
-              // Estudiantes solo pueden enviar mensajes a los Administradores
               msgBtn.style.display = 'inline-block';
               msgBtn.innerText = '⚠️ REPORTAR FALLA AL ADMIN';
-              msgBtn.className = "btn-submit btn-call-emergency"; // Color rojo/naranja para reporte
+              msgBtn.className = "btn-submit btn-call-emergency";
           }
       }
 
@@ -1520,6 +1537,7 @@
     }
 
     function renderEmptyState() {
+      updateDirectoryUI();
       document.getElementById('form-mode').style.display = 'block';
       document.getElementById('view-mode').style.display = 'none';
       document.getElementById('admin-panel-section').style.display = 'none';
