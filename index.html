@@ -34,6 +34,7 @@
       --accent-hover: #0284c7;
       --accent-danger: #ef4444;
       --accent-admin: #10b981;
+      --accent-warning: #f59e0b;
       --text-primary: #f8fafc;
       --text-secondary: #94a3b8;
       --border-color: #475569;
@@ -185,6 +186,12 @@
       border-color: #991b1b;
       background: rgba(153, 27, 27, 0.15);
     }
+    
+    .action-card-btn.warning-btn {
+      color: #f59e0b;
+      border-color: #b45309;
+      background: rgba(180, 83, 9, 0.15);
+    }
 
     .section-title {
       font-size: 1.3rem;
@@ -306,6 +313,11 @@
 
     .btn-submit.btn-admin {
       background: linear-gradient(135deg, #10b981, #059669);
+    }
+    
+    .btn-submit.btn-message {
+      background: linear-gradient(135deg, #f59e0b, #d97706);
+      box-shadow: 0 4px 12px rgba(245, 158, 11, 0.4);
     }
 
     .profile-card-view {
@@ -523,6 +535,7 @@
       display: flex;
       gap: 14px;
       align-items: center;
+      cursor: pointer;
     }
 
     .student-card img {
@@ -542,6 +555,13 @@
       font-size: 0.98rem;
       color: #ffffff;
       margin-bottom: 2px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    
+    .status-dot {
+      font-size: 0.7rem;
     }
 
     .student-info p {
@@ -610,6 +630,17 @@
       cursor: pointer;
     }
 
+    .message-card {
+      background: var(--bg-card); 
+      border-left: 4px solid var(--accent-warning); 
+      padding: 14px; 
+      margin-bottom: 12px; 
+      border-radius: 8px;
+      border-top: 1px solid var(--border-color);
+      border-right: 1px solid var(--border-color);
+      border-bottom: 1px solid var(--border-color);
+    }
+
     .bottom-nav {
       position: fixed;
       bottom: 0;
@@ -661,6 +692,10 @@
      <h2 id="home-welcome-title">¡Bienvenido, UTCino!</h2>
      <p id="home-welcome-sub">Tu asistente integral de seguridad y respuesta inmediata ante emergencias institucionales.</p>
     </div>
+    
+    <!-- BANDEJA DE MENSAJES OFICIALES (Aparece si hay mensajes) -->
+    <div id="home-messages" style="padding: 0 16px; margin-bottom: 16px;"></div>
+
     <div class="quick-actions">
      <div class="action-card-btn" onclick="switchTab('informacion', document.getElementById('nav-ficha'))">
       <span>👤 MI FICHA MÉDICA / ESTADO</span> <span>➔</span>
@@ -669,7 +704,6 @@
       <span>🗺️ BLOQUES DEL CAMPUS &amp; RUTAS</span> <span>➔</span>
      </div>
      
-     <!-- LLAMADA DIRECTA AL ECU 911 -->
      <a class="action-card-btn danger-btn" href="tel:911">
       <span>🚨 LLAMAR AL ECU 911 (URGENCIA)</span> <span>📞</span>
      </a>
@@ -702,7 +736,6 @@
        <input type="text" id="input-cedula" class="form-control" maxlength="10" placeholder="10 dígitos" required>
       </div>
       
-      <!-- NUEVOS CAMPOS: GÉNERO Y TIPO DE SANGRE -->
       <div class="form-group">
        <label>Género</label> 
        <select id="input-genero" class="form-control" required>
@@ -795,7 +828,6 @@
       <div class="detail-item">
        <label>Cédula</label><span id="view-cedula">--</span>
       </div>
-      <!-- MOSTRAR GÉNERO Y SANGRE EN EL PERFIL -->
       <div class="detail-item">
        <label>Género</label><span id="view-genero">--</span>
       </div>
@@ -854,13 +886,11 @@
      <p id="modal-student-carrera" style="color: var(--accent); font-size: 0.85rem; font-weight: 600;">--</p>
      <div class="detail-grid">
       <div class="detail-item">
-       <label>Cédula</label><span id="modal-student-cedula">--</span>
+       <label>Estado</label><span id="modal-student-status">--</span>
       </div>
       <div class="detail-item">
-       <label>Semestre</label><span id="modal-student-ciclo">--</span>
+       <label>Cédula</label><span id="modal-student-cedula">--</span>
       </div>
-      
-      <!-- MOSTRAR GÉNERO Y SANGRE EN EL MODAL -->
       <div class="detail-item">
        <label>Género</label><span id="modal-student-genero">--</span>
       </div>
@@ -876,11 +906,14 @@
        <img id="modal-student-croquis" src="" style="width:100%; max-height:180px; object-fit:cover; border-radius:8px; margin-top:6px;" alt="Croquis Alumno">
       </div>
      </div>
-     <a id="modal-btn-call" class="btn-submit btn-call-emergency" style="margin-top: 16px;" href="#">📞 LLAMAR CONTACTO DE EMERGENCIA</a>
+     <div style="display: flex; flex-direction: column; gap: 10px; margin-top: 16px;">
+        <a id="modal-btn-call" class="btn-submit btn-call-emergency" href="#">📞 LLAMAR CONTACTO</a>
+        <button id="modal-btn-message" class="btn-submit btn-message" onclick="sendOfficialMessage()">✉️ ENVIAR MENSAJE OFICIAL</button>
+     </div>
     </div>
    </div>
 
-   <!-- 4. CONTENIDO DE PLAN DE BLOQUES (RESTURADOS Y MEJORADOS DEL 1 AL 8) -->
+   <!-- 4. CONTENIDO DE PLAN DE BLOQUES -->
    <div id="tab-protocolos" class="tab-content">
     <div class="section-title">Contenido de Plan</div>
     <div class="section-subtitle">Toca cada bloque para desplegar el Plan de Reconocimiento de Amenazas Naturales.</div>
@@ -1075,10 +1108,13 @@
      <img id="user-tab-avatar" src="https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=300&q=80" class="profile-header-avatar" alt="Foto">
      <h3 id="user-tab-nombre">Usuario UTCino</h3>
      <p id="user-tab-rol" style="color: var(--accent); font-size: 0.85rem; margin-bottom: 12px;">Sin registro previo</p>
-     <div class="detail-item full-width" style="margin-bottom: 15px; text-align: left;">
-      <label>Estado del Sistema</label> 
-      <span id="user-tab-status">☁️ Conectado a Cloud Firestore</span>
+     
+     <!-- ESTADO DE CONEXIÓN ACTUALIZADO -->
+     <div class="detail-item full-width" style="margin-bottom: 15px; text-align: left;" id="status-container">
+      <label>Estado de Conexión</label> 
+      <span id="user-tab-status" style="color: #94a3b8;">⚪ Sin Conexión</span>
      </div>
+
      <button id="btn-unlock-admin" class="action-card-btn admin-btn" style="width: 100%; justify-content: center;" onclick="promptAdminCode()">🔑 Entrar como Administrador</button>
     </div>
 
@@ -1123,6 +1159,7 @@
     let userData = JSON.parse(localStorage.getItem('utc_user_data')) || null;
     let fotoBase64 = userData ? userData.foto : "";
     let croquisBase64 = userData ? userData.croquis : "";
+    let currentModalStudentIndex = -1; // Para saber a quién enviar el mensaje
 
     document.addEventListener('DOMContentLoaded', () => {
       document.getElementById('admin-teacher-key-input').value = currentTeacherKey;
@@ -1139,18 +1176,110 @@
       initFirebaseSync();
     });
 
+    // SISTEMA DE PRESENCIA (EN LÍNEA / OFFLINE)
+    async function setOnlineStatus(status) {
+      if (!userData || !userData.cedula) return;
+      const student = studentsList.find(s => s.cedula === userData.cedula);
+      if (student && student.id && window.dbFuncs && window.db) {
+        try {
+          await window.dbFuncs.updateDoc(window.dbFuncs.doc(window.db, "estudiantes", student.id), {
+            isOnline: status
+          });
+        } catch(e) { console.log(e); }
+      }
+    }
+
+    // Cuando el usuario cierra la página o app, intenta poner en offline
+    window.addEventListener('beforeunload', () => {
+      setOnlineStatus(false);
+    });
+
     function initFirebaseSync() {
       if (window.dbFuncs && window.db) {
         const { collection, onSnapshot } = window.dbFuncs;
         onSnapshot(collection(window.db, "estudiantes"), (snapshot) => {
           studentsList = [];
           snapshot.forEach((doc) => {
-            studentsList.push(doc.data());
+            let data = doc.data();
+            data.id = doc.id; // Guardamos el ID del documento para poder actualizarlo luego
+            studentsList.push(data);
+            
+            // Si el documento que llega es el mío, actualizo mis datos locales (mensajes, etc.)
+            if (userData && data.cedula === userData.cedula) {
+              userData = data;
+              localStorage.setItem('utc_user_data', JSON.stringify(userData));
+              renderMessages(); // Actualiza bandeja de entrada
+            }
           });
           filterStudents();
+          setOnlineStatus(true); // Al conectar, marcar como en línea
         });
       } else {
         setTimeout(initFirebaseSync, 500);
+      }
+    }
+
+    function renderMessages() {
+      const container = document.getElementById('home-messages');
+      if (!userData || !userData.mensajes || userData.mensajes.length === 0) {
+        container.innerHTML = '';
+        return;
+      }
+
+      let html = `<div class="section-title" style="margin-top: 10px; color: var(--accent-warning);">📩 Bandeja de Entrada</div>`;
+      
+      userData.mensajes.forEach((msg, idx) => {
+        const dateObj = new Date(msg.fecha);
+        const dateStr = isNaN(dateObj.getTime()) ? 'Reciente' : dateObj.toLocaleString();
+        
+        html += `
+        <div class="message-card">
+          <p style="font-size: 0.75rem; color: var(--text-secondary); margin-bottom: 6px;">📅 ${dateStr} - De: ${msg.emisor}</p>
+          <p style="font-size: 0.95rem; color: #fff; font-weight: 500;">${msg.texto}</p>
+          <button onclick="clearMessage(${idx})" style="background:none; border:none; color: #10b981; font-size:0.85rem; cursor:pointer; margin-top: 12px; font-weight: bold;">✅ Marcar como leído (Borrar)</button>
+        </div>`;
+      });
+      container.innerHTML = html;
+    }
+
+    async function clearMessage(index) {
+      if (!userData) return;
+      const studentDoc = studentsList.find(s => s.cedula === userData.cedula);
+      if (!studentDoc || !studentDoc.id) return;
+
+      let msgs = [...(userData.mensajes || [])];
+      msgs.splice(index, 1); // Borramos el mensaje específico
+
+      try {
+        await window.dbFuncs.updateDoc(window.dbFuncs.doc(window.db, "estudiantes", studentDoc.id), {
+          mensajes: msgs
+        });
+      } catch(e) {
+        console.error(e);
+      }
+    }
+
+    async function sendOfficialMessage() {
+      if (currentModalStudentIndex === -1) return;
+      const student = studentsList[currentModalStudentIndex];
+      
+      const mensaje = prompt(`Escribe el mensaje oficial que recibirá ${student.nombre}:`);
+      if (mensaje && mensaje.trim() !== "") {
+        const msgs = student.mensajes || [];
+        msgs.push({
+          texto: mensaje.trim(),
+          fecha: new Date().toISOString(),
+          emisor: userData ? userData.nombre : 'Ingeniero / Admin'
+        });
+
+        try {
+          await window.dbFuncs.updateDoc(window.dbFuncs.doc(window.db, "estudiantes", student.id), {
+            mensajes: msgs
+          });
+          alert("✅ Mensaje enviado exitosamente. El alumno lo recibirá al instante.");
+        } catch(e) {
+          alert("❌ Error al enviar el mensaje. Revisa tu conexión.");
+        }
       }
     }
 
@@ -1259,10 +1388,10 @@
     document.getElementById('medicalForm').addEventListener('submit', async function(e) {
       e.preventDefault();
       const rolSeleccionado = document.getElementById('input-rol').value;
-
-      // RECUPERAMOS GÉNERO Y TIPO DE SANGRE
       const generoValor = document.getElementById('input-genero').value;
       const sangreValor = document.getElementById('input-sangre').value;
+
+      let newData = {};
 
       if (rolSeleccionado === 'Ingeniero') {
         const claveIngresada = document.getElementById('input-clave-profesor').value;
@@ -1270,11 +1399,10 @@
           alert('❌ Código de Ingeniero incorrecto.');
           return;
         }
-
         const checkboxes = document.querySelectorAll('#teacher-fields input[type="checkbox"]:checked');
         const cursosSeleccionados = Array.from(checkboxes).map(cb => cb.value);
 
-        userData = {
+        newData = {
           rol: rolSeleccionado,
           nombre: document.getElementById('input-nombre').value,
           cedula: document.getElementById('input-cedula').value,
@@ -1286,10 +1414,11 @@
           cursosDocente: cursosSeleccionados,
           contactoNom: document.getElementById('input-contacto-nom').value,
           contactoTel: document.getElementById('input-contacto-tel').value,
-          fechaRegistro: new Date().toISOString()
+          fechaRegistro: new Date().toISOString(),
+          isOnline: true
         };
       } else {
-        userData = {
+        newData = {
           rol: rolSeleccionado,
           nombre: document.getElementById('input-nombre').value,
           cedula: document.getElementById('input-cedula').value,
@@ -1301,9 +1430,17 @@
           ciclo: document.getElementById('input-ciclo-student').value,
           contactoNom: document.getElementById('input-contacto-nom').value,
           contactoTel: document.getElementById('input-contacto-tel').value,
-          fechaRegistro: new Date().toISOString()
+          fechaRegistro: new Date().toISOString(),
+          isOnline: true
         };
       }
+      
+      // Mantener los mensajes antiguos si el usuario ya existía
+      if (userData && userData.mensajes) {
+          newData.mensajes = userData.mensajes;
+      }
+      
+      userData = newData;
 
       try {
         if (window.dbFuncs && window.db) {
@@ -1316,10 +1453,10 @@
           if (!querySnapshot.empty) {
             const existingDocId = querySnapshot.docs[0].id;
             await updateDoc(doc(window.db, "estudiantes", existingDocId), userData);
-            alert('¡Ficha Médica ACTUALIZADA con éxito en la base de datos!');
+            alert('¡Ficha Médica ACTUALIZADA con éxito!');
           } else {
             await addDoc(estudiantesRef, userData);
-            alert('¡Ficha Médica GUARDADA con éxito por primera vez!');
+            alert('¡Ficha Médica GUARDADA con éxito!');
           }
         }
         localStorage.setItem('utc_user_data', JSON.stringify(userData));
@@ -1350,7 +1487,6 @@
       document.getElementById('view-rol').innerText = userData.rol;
       document.getElementById('view-cedula').innerText = userData.cedula;
       
-      // MOSTRAR GÉNERO Y SANGRE
       document.getElementById('view-genero').innerText = userData.genero || 'No definido';
       document.getElementById('view-sangre').innerText = userData.tipoSangre || 'No definido';
 
@@ -1376,6 +1512,12 @@
       document.getElementById('user-tab-avatar').src = userData.foto;
       document.getElementById('user-tab-nombre').innerText = userData.nombre;
       document.getElementById('user-tab-rol').innerText = userData.rol;
+      
+      // Estado de conexión del usuario activo
+      document.getElementById('user-tab-status').innerText = "🟢 En Línea";
+      document.getElementById('user-tab-status').style.color = "#10b981";
+      
+      renderMessages();
     }
 
     function enableEditMode() {
@@ -1390,7 +1532,6 @@
         document.getElementById('input-contacto-nom').value = userData.contactoNom;
         document.getElementById('input-contacto-tel').value = userData.contactoTel;
         
-        // RECUPERAR GÉNERO Y TIPO DE SANGRE AL EDITAR
         if(userData.genero) document.getElementById('input-genero').value = userData.genero;
         if(userData.tipoSangre) document.getElementById('input-sangre').value = userData.tipoSangre;
         
@@ -1438,12 +1579,16 @@
       }
 
       container.innerHTML = list.map((student, index) => {
+        // Obtenemos el índice real en studentsList para asegurar que abramos el modal del estudiante correcto
+        const realIndex = studentsList.findIndex(s => s.cedula === student.cedula);
         const cleanTel = student.contactoTel ? String(student.contactoTel).replace(/[^0-9+]/g, '') : '';
+        const statusDot = student.isOnline ? '🟢 En Línea' : '🔴 Offline';
+        
         return `
-        <div class="student-card" onclick="openStudentModal(${index})">
+        <div class="student-card" onclick="openStudentModal(${realIndex})">
           <img src="${student.foto || 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=300&q=80'}" alt="${student.nombre}">
           <div class="student-info">
-            <h4>${student.nombre}</h4>
+            <h4>${student.nombre} <span class="status-dot">${statusDot}</span></h4>
             <p>📄 C.I: <strong>${student.cedula}</strong></p>
             <p>📚 ${student.carrera}</p>
             <span class="student-badge">${student.ciclo || 'Registrado'}</span>
@@ -1458,6 +1603,7 @@
     function openStudentModal(index) {
       const student = studentsList[index];
       if(!student) return;
+      currentModalStudentIndex = index;
 
       const cleanTel = student.contactoTel ? String(student.contactoTel).replace(/[^0-9+]/g, '') : '';
 
@@ -1465,9 +1611,10 @@
       document.getElementById('modal-student-name').innerText = student.nombre;
       document.getElementById('modal-student-carrera').innerText = student.carrera;
       document.getElementById('modal-student-cedula').innerText = student.cedula;
-      document.getElementById('modal-student-ciclo').innerText = student.ciclo || "N/A";
       
-      // MOSTRAR GÉNERO Y SANGRE EN EL MODAL DE ADMIN
+      const statusText = student.isOnline ? '🟢 En Línea' : '🔴 Offline';
+      document.getElementById('modal-student-status').innerText = statusText;
+
       document.getElementById('modal-student-genero').innerText = student.genero || "No definido";
       document.getElementById('modal-student-sangre').innerText = student.tipoSangre || "No definido";
       
@@ -1488,6 +1635,7 @@
 
     function closeStudentModal() {
       document.getElementById('student-modal').style.display = 'none';
+      currentModalStudentIndex = -1;
     }
 
     function saveNewTeacherKey() {
@@ -1508,6 +1656,7 @@
 
     function resetAllAppStorage() {
       if(confirm("⚠️ ¿Deseas limpiar tu sesión local?")) {
+        setOnlineStatus(false);
         localStorage.clear();
         location.reload();
       }
