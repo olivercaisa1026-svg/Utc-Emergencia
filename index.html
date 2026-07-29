@@ -720,6 +720,7 @@
         <div class="checkbox-group" id="teacher-courses-list"></div>
        </div>
       </div>
+      
       <div class="form-group">
        <label>Foto de Perfil</label>
        <div class="file-upload-box">
@@ -1240,16 +1241,41 @@
       if(btn) btn.classList.add('active');
     }
 
+    // AQUÍ ESTÁ LA SOLUCIÓN: Usamos un Canvas para comprimir la imagen y que Firebase permita guardarla.
     function previewImage(input, previewId, targetVar) {
       const file = input.files[0];
       if (file) {
         const reader = new FileReader();
         reader.onload = function(e) {
-          const imgElement = document.getElementById(previewId);
-          imgElement.src = e.target.result;
-          imgElement.style.display = 'block';
-          if(targetVar === 'fotoBase64') fotoBase64 = e.target.result;
-          if(targetVar === 'croquisBase64') croquisBase64 = e.target.result;
+          const img = new Image();
+          img.onload = function() {
+            // Creamos un canvas para comprimir la imagen y evitar que sobrepase el límite de 1MB de Firestore
+            const canvas = document.createElement('canvas');
+            const MAX_WIDTH = 600; // Reducimos la calidad al tamaño óptimo para celular
+            let width = img.width;
+            let height = img.height;
+            
+            if (width > MAX_WIDTH) {
+              height = Math.round((height * MAX_WIDTH) / width);
+              width = MAX_WIDTH;
+            }
+            
+            canvas.width = width;
+            canvas.height = height;
+            const ctx = canvas.getContext('2d');
+            ctx.drawImage(img, 0, 0, width, height);
+            
+            // Convertimos la imagen procesada a Base64 con 70% de calidad JPG
+            const dataUrl = canvas.toDataURL('image/jpeg', 0.7);
+            
+            const imgElement = document.getElementById(previewId);
+            imgElement.src = dataUrl;
+            imgElement.style.display = 'block';
+            
+            if(targetVar === 'fotoBase64') fotoBase64 = dataUrl;
+            if(targetVar === 'croquisBase64') croquisBase64 = dataUrl;
+          };
+          img.src = e.target.result;
         };
         reader.readAsDataURL(file);
       }
@@ -1306,7 +1332,7 @@
         alert('¡Ficha Médica guardada con éxito!');
       } catch (err) {
         console.error("Error guardando datos: ", err);
-        alert('⚠️ Guardado en memoria local.');
+        alert('⚠️ Error al subir: La imagen sigue siendo muy grande o hay problemas de red. Guardado en memoria local.');
       }
     });
 
