@@ -868,7 +868,7 @@
       </div>
 
       <div class="form-group">
-       <label>🗺️ Croquis / Ubicación Frecuente</label>
+       <label>MAPA DE RIESGO DE UBICACIÓN INDIVIDUALIZADO EN EL AULA O CASA 🗺️</label>
        <div class="file-upload-box">
         <span>📸 Usar Cámara / Subir Croquis</span> 
         <input type="file" id="input-croquis" accept="image/jpeg, image/png, image/jpg" capture="environment" onchange="previewImage(this, 'preview-croquis', 'croquisBase64')">
@@ -929,7 +929,7 @@
        <label>Contacto de Emergencia</label><span id="view-contacto">--</span>
       </div>
       <div class="detail-item full-width" id="view-croquis-box" style="display:none; text-align:center;">
-       <label>Croquis / Ubicación</label>
+       <label>MAPA DE RIESGO INDIVIDUALIZADO DE UBICACIÓN EN EL AULA O CASA</label>
        <img id="view-croquis-img" src="" style="width:100%; max-height:180px; object-fit:cover; border-radius:8px; margin-top:6px;" alt="Croquis Evacuación">
       </div>
      </div>
@@ -940,11 +940,18 @@
    <!-- 3. DIRECTORIO INSTITUCIONAL -->
    <div id="tab-directorio" class="tab-content">
     <div class="section-title">Directorio del Campus</div>
-    <div class="section-subtitle">Busca ingenieros o personal en la red utilizando los filtros.</div>
+    <div class="section-subtitle">Busca ingenieros, personal o administradores en la red.</div>
+    
+    <!-- APARTADO / SELECCIÓN DE VISTA DE DIRECTORIO -->
+    <div style="display: flex; gap: 8px; margin-bottom: 12px;">
+      <button id="btn-dir-general" class="btn-submit" style="flex: 1; padding: 10px; font-size: 0.85rem;" onclick="setDirectorioTab('general')">👥 Búsqueda General</button>
+      <button id="btn-dir-admin" class="btn-submit" style="flex: 1; padding: 10px; font-size: 0.85rem; background: var(--bg-input); border: 1px solid var(--border-color); color: var(--text-secondary);" onclick="setDirectorioTab('admin')">🛡️ Administradores</button>
+    </div>
+
     <div class="filter-box">
      <input type="text" id="search-student" class="form-control" placeholder="🔍 Buscar nombre o cédula..." oninput="filterStudents()">
      
-     <div style="display: flex; gap: 8px;">
+     <div id="filter-dropdowns-box" style="display: flex; gap: 8px;">
       <select id="filter-carrera" class="form-control" onchange="filterStudents()"> 
        <option value="">Buscar por Carrera...</option> 
       </select> 
@@ -1018,7 +1025,7 @@
       </div>
 
       <div class="detail-item full-width" id="modal-student-croquis-container" style="display:none; text-align:center;">
-       <label>Croquis de Ubicación</label>
+       <label>MAPA DE RIESGO DE UBICACIÓN EN EL AULA O CASA</label>
        <img id="modal-student-croquis" src="" style="width:100%; max-height:180px; object-fit:cover; border-radius:8px; margin-top:6px;" alt="Croquis">
       </div>
      </div>
@@ -1280,6 +1287,7 @@
     let fotoBase64 = userData ? userData.foto : "";
     let croquisBase64 = userData ? userData.croquis : "";
     let currentModalStudentIndex = -1;
+    let currentDirMode = 'general'; // Estado actual del directorio: 'general' o 'admin'
 
     document.addEventListener('DOMContentLoaded', () => {
       document.getElementById('admin-teacher-key-input').value = currentTeacherKey;
@@ -1295,6 +1303,36 @@
 
       initFirebaseSync();
     });
+
+    function setDirectorioTab(mode) {
+      currentDirMode = mode;
+      const btnGen = document.getElementById('btn-dir-general');
+      const btnAdmin = document.getElementById('btn-dir-admin');
+      const dropdownsBox = document.getElementById('filter-dropdowns-box');
+
+      if (mode === 'admin') {
+        btnGen.style.background = 'var(--bg-input)';
+        btnGen.style.border = '1px solid var(--border-color)';
+        btnGen.style.color = 'var(--text-secondary)';
+
+        btnAdmin.style.background = 'linear-gradient(135deg, #10b981, #059669)';
+        btnAdmin.style.border = 'none';
+        btnAdmin.style.color = '#ffffff';
+
+        if (dropdownsBox) dropdownsBox.style.display = 'none';
+      } else {
+        btnGen.style.background = 'linear-gradient(135deg, #0ea5e9, #0284c7)';
+        btnGen.style.border = 'none';
+        btnGen.style.color = '#ffffff';
+
+        btnAdmin.style.background = 'var(--bg-input)';
+        btnAdmin.style.border = '1px solid var(--border-color)';
+        btnAdmin.style.color = 'var(--text-secondary)';
+
+        if (dropdownsBox) dropdownsBox.style.display = 'flex';
+      }
+      filterStudents();
+    }
 
     function toggleHealthField(tipo) {
       const resp = document.getElementById(`input-${tipo}-sn`).value;
@@ -1751,7 +1789,6 @@
       }
     }
 
-    // MODIFICADO: Función de filtro para excluir a los administradores
     function filterStudents() {
       const textQuery = document.getElementById('search-student').value.toLowerCase().trim();
       const carreraQuery = document.getElementById('filter-carrera').value;
@@ -1759,6 +1796,22 @@
       const isDefaultView = (textQuery === "" && carreraQuery === "" && cicloQuery === "");
       const miRol = userData ? userData.rol : 'Estudiante'; 
 
+      // MODO ADMINISTRADORES
+      if (currentDirMode === 'admin') {
+        const filteredAdmins = studentsList.filter(s => {
+          if (s.rol !== 'Administrador') return false;
+          if (textQuery !== "") {
+            return (s.nombre && s.nombre.toLowerCase().includes(textQuery)) || (s.cedula && s.cedula.includes(textQuery));
+          }
+          return true;
+        });
+
+        currentlyFilteredStudents = filteredAdmins;
+        renderStudentsList(filteredAdmins);
+        return;
+      }
+
+      // MODO BÚSQUEDA GENERAL
       let sortedList = [...studentsList].sort((a, b) => {
           if (a.rol === 'Administrador' && b.rol !== 'Administrador') return -1;
           if (b.rol === 'Administrador' && a.rol !== 'Administrador') return 1;
@@ -1766,7 +1819,6 @@
       });
 
       const filtered = sortedList.filter(s => {
-        // CORRECCIÓN 1: Excluir por completo a los administradores de la lista
         if (s.rol === 'Administrador') return false; 
         
         if (miRol === 'Estudiante' && s.rol === 'Estudiante') return false; 
@@ -1791,25 +1843,33 @@
         return matchText && matchCarrera && matchCiclo;
       });
 
-      currentlyFilteredStudents = filtered; // Guardar estado para el PDF
+      currentlyFilteredStudents = filtered; 
       renderStudentsList(filtered);
     }
 
     function renderStudentsList(list) {
       const container = document.getElementById('students-container');
+      const adminCount = list.filter(s => s.rol === 'Administrador').length;
       const engineerCount = list.filter(s => s.rol === 'Ingeniero').length;
       const studentCount = list.filter(s => s.rol === 'Estudiante').length;
       
-      let countText = `Resultados de la búsqueda:`;
-      if(engineerCount > 0) countText += ` ${engineerCount} Docente(s)`;
-      if(studentCount > 0) countText += ` y ${studentCount} Estudiante(s)`;
-      
-      if(engineerCount === 0 && studentCount === 0) countText = "";
+      let countText = "";
+      if (currentDirMode === 'admin') {
+        countText = `🛡️ Administradores del Sistema: ${adminCount}`;
+      } else {
+        countText = `Resultados de la búsqueda:`;
+        if(engineerCount > 0) countText += ` ${engineerCount} Docente(s)`;
+        if(studentCount > 0) countText += ` y ${studentCount} Estudiante(s)`;
+        if(engineerCount === 0 && studentCount === 0) countText = "";
+      }
       
       document.getElementById('students-count').innerText = countText;
 
       if (list.length === 0) {
-        container.innerHTML = `<div style="text-align: center; padding: 30px 10px; color: var(--text-secondary);"><p>☁️ <strong>Sin registros para esta búsqueda</strong></p></div>`;
+        const msgEmpty = currentDirMode === 'admin' 
+          ? `☁️ <strong>No hay administradores registrados o encontrados</strong>` 
+          : `☁️ <strong>Sin registros para esta búsqueda</strong>`;
+        container.innerHTML = `<div style="text-align: center; padding: 30px 10px; color: var(--text-secondary);"><p>${msgEmpty}</p></div>`;
         return;
       }
 
@@ -1819,10 +1879,12 @@
         const cleanTel = numToUse ? String(numToUse).replace(/[^0-9+]/g, '') : '';
         const statusDot = student.isOnline ? '🟢 En Línea' : '🔴 Offline';
         const roleLabel = student.rol || 'Estudiante';
-        const rolDesc = (student.rol === 'Ingeniero' ? 'Docencia e Ingeniería' : 'Estudiante Matriculado');
+        const isAdmin = student.rol === 'Administrador';
+        const cardClass = isAdmin ? 'student-card admin-card-style' : 'student-card';
+        const rolDesc = (student.rol === 'Administrador' ? 'Administrador del Sistema' : (student.rol === 'Ingeniero' ? 'Docencia e Ingeniería' : 'Estudiante Matriculado'));
         
         return `
-        <div class="student-card" onclick="openStudentModal(${realIndex})">
+        <div class="${cardClass}" onclick="openStudentModal(${realIndex})">
           <img src="${student.foto || 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=300&q=80'}" alt="${student.nombre}">
           <div class="student-info">
             <h4>${student.nombre} <span class="status-dot">${statusDot}</span></h4>
@@ -1902,7 +1964,6 @@
       currentModalStudentIndex = -1;
     }
 
-    // MODIFICADO: Generación de PDF con Nombre de Docente, Curso y Total
     function downloadCoursePDF() {
       const cicloQuery = document.getElementById('filter-ciclo').value;
       
@@ -1927,7 +1988,6 @@
       doc.text("Plan de Contingencia UTCino", 14, 15);
       doc.setFontSize(10);
       
-      // CORRECCIÓN 2: Obtener los datos solicitados para el PDF
       const nombreDocente = userData ? userData.nombre : "Docente / Usuario No Definido";
       const totalEstudiantes = studentsToPrint.length;
       
@@ -1945,7 +2005,7 @@
       ]);
       
       doc.autoTable({
-          startY: 40, // Se baja un poco la tabla para no tapar los datos nuevos
+          startY: 40,
           head: [['#', 'Nombre Completo', 'Cédula', 'Sangre', 'Tel. Personal', 'Tel. Emergencia']],
           body: tableData,
           styles: { fontSize: 8 },
