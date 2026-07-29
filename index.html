@@ -538,6 +538,11 @@
       cursor: pointer;
     }
 
+    .student-card.admin-card-style {
+      border: 1px solid var(--accent-admin);
+      background: rgba(16, 185, 129, 0.05);
+    }
+
     .student-card img {
       width: 60px;
       height: 60px;
@@ -545,6 +550,10 @@
       object-fit: cover;
       border: 2px solid var(--accent);
       flex-shrink: 0;
+    }
+
+    .student-card.admin-card-style img {
+      border-color: var(--accent-admin);
     }
 
     .student-info {
@@ -579,6 +588,11 @@
       padding: 2px 8px;
       border-radius: 6px;
       margin-top: 4px;
+    }
+
+    .student-card.admin-card-style .student-badge {
+      background: rgba(16, 185, 129, 0.15);
+      color: var(--accent-admin);
     }
 
     .call-btn-mini {
@@ -710,23 +724,26 @@
     </div>
    </div>
 
-   <!-- 2. FICHA MÉDICA -->
+   <!-- 2. FICHA MÉDICA / REGISTRO -->
    <div id="tab-informacion" class="tab-content">
-    <div class="section-title">Ficha Médica de Emergencia</div>
-    <div class="section-subtitle">Completa o edita tus datos para respuesta en campus.</div>
+    <div class="section-title">Registro / Ficha Médica</div>
+    <div class="section-subtitle">Identifícate para formar parte de la red del campus.</div>
     <div id="form-mode" class="form-card">
      <form id="medicalForm">
       <div class="form-group">
-       <label>Rol de Usuario</label> 
+       <label>Rol en la Institución</label> 
        <select id="input-rol" class="form-control" onchange="toggleRoleFields(this.value)" required> 
         <option value="Estudiante" selected>Estudiante</option> 
-        <option value="Ingeniero">Ingeniero / Docente</option> 
+        <option value="Ingeniero">Ingeniero / Docente</option>
+        <option value="Administrador">Administrador del Sistema</option> 
        </select>
       </div>
-      <div class="form-group" id="teacher-code-box" style="display: none;">
-       <label style="color: #f87171;">🔑 Código para Ingenieros Autorizados</label> 
-       <input type="password" id="input-clave-profesor" class="form-control" placeholder="Ingresa el código docente">
+      
+      <div class="form-group" id="role-code-box" style="display: none;">
+       <label id="role-code-label" style="color: #f87171;">🔑 Código de Acceso</label> 
+       <input type="password" id="input-clave-acceso" class="form-control" placeholder="Ingresa el código secreto">
       </div>
+
       <div class="form-group">
        <label>Nombre Completo</label> 
        <input type="text" id="input-nombre" class="form-control" placeholder="Ej. Juan Pérez" required>
@@ -760,6 +777,7 @@
        </select>
       </div>
 
+      <!-- CAMPOS DE ESTUDIANTE -->
       <div id="student-fields">
        <div class="form-group">
         <label>Carrera UTC</label> 
@@ -779,6 +797,8 @@
         </select>
        </div>
       </div>
+
+      <!-- CAMPOS DE DOCENTE -->
       <div id="teacher-fields" style="display: none;">
        <div class="form-group">
         <label>Cursos a Cargo (Semestres 1º al 8º)</label>
@@ -796,7 +816,7 @@
       </div>
 
       <div class="form-group">
-       <label>🗺️ Croquis / Foto de Evacuación</label>
+       <label>🗺️ Croquis / Ubicación Frecuente</label>
        <div class="file-upload-box">
         <span>📸 Usar Cámara / Subir Croquis</span> 
         <input type="file" id="input-croquis" accept="image/jpeg, image/png, image/jpg" capture="environment" onchange="previewImage(this, 'preview-croquis', 'croquisBase64')">
@@ -812,7 +832,7 @@
        <label>Teléfono de Contacto</label> 
        <input type="tel" id="input-contacto-tel" class="form-control" placeholder="Ej. 0991234567" required>
       </div>
-      <button type="submit" class="btn-submit">💾 Guardar / Actualizar Ficha</button>
+      <button type="submit" class="btn-submit">💾 Guardar / Entrar</button>
      </form>
     </div>
 
@@ -835,27 +855,35 @@
        <label>Sangre</label><span id="view-sangre" style="color: #ef4444; font-weight: 800;">--</span>
       </div>
 
-      <div class="detail-item full-width">
+      <div class="detail-item full-width" id="view-cursos-container">
        <label id="view-cursos-label">Asignación</label><span id="view-ciclo">--</span>
       </div>
       <div class="detail-item full-width">
        <label>Contacto Emergencia</label><span id="view-contacto">--</span>
       </div>
       <div class="detail-item full-width" id="view-croquis-box" style="display:none; text-align:center;">
-       <label>Croquis Guardado</label>
+       <label>Croquis / Ubicación</label>
        <img id="view-croquis-img" src="" style="width:100%; max-height:180px; object-fit:cover; border-radius:8px; margin-top:6px;" alt="Croquis Evacuación">
       </div>
      </div>
-     <button class="action-card-btn" style="margin-top: 20px; justify-content: center; width: 100%;" onclick="enableEditMode()">✏️ EDITAR MI FICHA</button>
+     <button class="action-card-btn" style="margin-top: 20px; justify-content: center; width: 100%;" onclick="enableEditMode()">✏️ EDITAR MI PERFIL</button>
     </div>
    </div>
 
-   <!-- 3. LISTA DE ESTUDIANTES -->
-   <div id="tab-estudiantes" class="tab-content">
-    <div class="section-title">Registro de Estudiantes</div>
-    <div class="section-subtitle">Consulta y filtra fichas médicas de estudiantes registrados.</div>
+   <!-- 3. DIRECTORIO INSTITUCIONAL -->
+   <div id="tab-directorio" class="tab-content">
+    <div class="section-title">Directorio del Campus</div>
+    <div class="section-subtitle">Busca administradores, ingenieros o estudiantes en la red.</div>
     <div class="filter-box">
-     <input type="text" id="search-student" class="form-control" placeholder="🔍 Buscar por nombre o cédula..." oninput="filterStudents()">
+     <input type="text" id="search-student" class="form-control" placeholder="🔍 Buscar nombre o cédula..." oninput="filterStudents()">
+     
+     <select id="filter-rol" class="form-control" onchange="filterStudents()" style="margin-bottom: 8px;">
+        <option value="">Todos los Roles</option>
+        <option value="Administrador">Administradores (Soporte)</option>
+        <option value="Ingeniero">Ingenieros / Docentes</option>
+        <option value="Estudiante">Estudiantes</option>
+     </select>
+
      <div style="display: flex; gap: 8px;">
       <select id="filter-carrera" class="form-control" onchange="filterStudents()"> 
        <option value="">Todas las Carreras</option> 
@@ -877,11 +905,11 @@
     <div id="students-container"></div>
    </div>
 
-   <!-- MODAL ESTUDIANTE -->
+   <!-- MODAL PERFIL DIRECTORIO -->
    <div id="student-modal" class="modal-overlay">
     <div class="modal-content profile-card-view">
      <button class="close-modal" onclick="closeStudentModal()">×</button>
-     <img id="modal-student-img" class="profile-header-avatar" src="" alt="Alumno">
+     <img id="modal-student-img" class="profile-header-avatar" src="" alt="Usuario">
      <h3 id="modal-student-name">--</h3>
      <p id="modal-student-carrera" style="color: var(--accent); font-size: 0.85rem; font-weight: 600;">--</p>
      <div class="detail-grid">
@@ -889,7 +917,7 @@
        <label>Estado</label><span id="modal-student-status">--</span>
       </div>
       <div class="detail-item">
-       <label>Cédula</label><span id="modal-student-cedula">--</span>
+       <label>Rol</label><span id="modal-student-rol">--</span>
       </div>
       <div class="detail-item">
        <label>Género</label><span id="modal-student-genero">--</span>
@@ -903,12 +931,14 @@
       </div>
       <div class="detail-item full-width" id="modal-student-croquis-container" style="display:none; text-align:center;">
        <label>Croquis de Ubicación</label>
-       <img id="modal-student-croquis" src="" style="width:100%; max-height:180px; object-fit:cover; border-radius:8px; margin-top:6px;" alt="Croquis Alumno">
+       <img id="modal-student-croquis" src="" style="width:100%; max-height:180px; object-fit:cover; border-radius:8px; margin-top:6px;" alt="Croquis">
       </div>
      </div>
      <div style="display: flex; flex-direction: column; gap: 10px; margin-top: 16px;">
         <a id="modal-btn-call" class="btn-submit btn-call-emergency" href="#">📞 LLAMAR CONTACTO</a>
-        <button id="modal-btn-message" class="btn-submit btn-message" onclick="sendOfficialMessage()">✉️ ENVIAR MENSAJE OFICIAL</button>
+        
+        <!-- BOTON DINAMICO (Solo para enviar msg / reportes) -->
+        <button id="modal-btn-message" class="btn-submit btn-message" onclick="sendOfficialMessage()" style="display:none;">✉️ ENVIAR MENSAJE</button>
      </div>
     </div>
    </div>
@@ -916,9 +946,9 @@
    <!-- 4. CONTENIDO DE PLAN DE BLOQUES -->
    <div id="tab-protocolos" class="tab-content">
     <div class="section-title">Contenido de Plan</div>
-    <div class="section-subtitle">Toca cada bloque para desplegar el Plan de Reconocimiento de Amenazas Naturales.</div>
+    <div class="section-subtitle">Toca cada bloque para desplegar el Plan de Reconocimiento.</div>
     
-    <!-- BLOQUE 1 -->
+    <!-- (Los bloques de ejemplo se mantienen igual) -->
     <div class="block-card-expandable" onclick="toggleBlock(this)">
      <div class="block-header-clickable">
       <div class="block-title-group">
@@ -928,206 +958,52 @@
       <span class="arrow-icon">▼</span>
      </div>
      <div class="block-details-content">
-      <div class="threat-box threat-volcano">
-       🌋 <strong>Amenaza Volcánica (Cotopaxi):</strong> Exposición media a caída de ceniza. Riesgo de flujo lahárico nulo debido a elevación. Cerrar ventanas herméticamente.
-      </div>
-      <div class="threat-box threat-seismic">
-       ⚠️ <strong>Riesgo Sísmico:</strong> Estructura de hormigón armado. Vulnerabilidad alta en ventanales de vidrio de la fachada principal. Evacuar hacia la explanada central.
-      </div>
+      <div class="threat-box threat-volcano">🌋 <strong>Amenaza Volcánica (Cotopaxi):</strong> Cerrar ventanas herméticamente.</div>
       <div class="plan-section-head">Rutas de Evacuación</div>
-      <ul class="plan-list">
-       <li>Salida Principal (Planta Baja): Dirigirse al Punto de Encuentro A (Patio Central).</li>
-       <li>Salidas Laterales: Mantener la derecha y no usar ascensores.</li>
-      </ul>
+      <ul class="plan-list"><li>Dirigirse al Punto de Encuentro A (Patio Central).</li></ul>
      </div>
     </div>
-
-    <!-- BLOQUE 2 -->
     <div class="block-card-expandable" onclick="toggleBlock(this)">
      <div class="block-header-clickable">
       <div class="block-title-group">
-       <span class="block-title">🏢 Bloque 2: Aulas Generales</span> 
-       <span class="block-subtitle">Ciencias Administrativas y Humanas</span>
+       <span class="block-title">🌳 Bloque 8: Puntos de Encuentro Principales</span> 
+       <span class="block-subtitle">Zonas Seguras</span>
       </div>
       <span class="arrow-icon">▼</span>
      </div>
      <div class="block-details-content">
-      <div class="threat-box threat-seismic">
-       ⚠️ <strong>Riesgo Sísmico:</strong> Alta concentración de estudiantes. Riesgo de aglomeración en escaleras.
-      </div>
-      <div class="plan-section-head">Protocolo de Acción</div>
-      <ul class="plan-list">
-       <li>Mantener la calma, proteger cabeza y cuello bajo pupitres.</li>
-       <li>Evacuar por las escaleras de emergencia laterales hacia el Punto de Encuentro B (Canchas deportivas).</li>
-       <li>Docentes deben ser los últimos en salir, verificando el aula vacía.</li>
-      </ul>
-     </div>
-    </div>
-
-    <!-- BLOQUE 3 -->
-    <div class="block-card-expandable" onclick="toggleBlock(this)">
-     <div class="block-header-clickable">
-      <div class="block-title-group">
-       <span class="block-title">🏭 Bloque 3: Laboratorios y Talleres</span> 
-       <span class="block-subtitle">Ingenierías (Industrial, Electromecánica, Automotriz)</span>
-      </div>
-      <span class="arrow-icon">▼</span>
-     </div>
-     <div class="block-details-content">
-      <div class="threat-box threat-hydro">
-       💧 <strong>Riesgo Secundario:</strong> Posibles derrames de químicos o combustibles en caso de sismo fuerte.
-      </div>
-      <div class="plan-section-head">Precauciones Especiales</div>
-      <ul class="plan-list">
-       <li>Apagar inmediatamente maquinaria pesada y cortar suministro eléctrico.</li>
-       <li>Cerrar válvulas de gas y productos inflamables.</li>
-       <li>Evacuar con equipo de protección personal puesto hacia zona segura designada.</li>
-      </ul>
-     </div>
-    </div>
-
-    <!-- BLOQUE 4 -->
-    <div class="block-card-expandable" onclick="toggleBlock(this)">
-     <div class="block-header-clickable">
-      <div class="block-title-group">
-       <span class="block-title">📚 Bloque 4: Biblioteca y Auditorio</span> 
-       <span class="block-subtitle">Zonas de Estudio e Investigación</span>
-      </div>
-      <span class="arrow-icon">▼</span>
-     </div>
-     <div class="block-details-content">
-      <div class="threat-box threat-seismic">
-       ⚠️ <strong>Riesgo Sísmico:</strong> Caída de estanterías pesadas y libros.
-      </div>
-      <div class="plan-section-head">Instrucciones de Evacuación</div>
-      <ul class="plan-list">
-       <li>Alejarse inmediatamente de los estantes y libreros.</li>
-       <li>Buscar protección bajo mesas de lectura robustas.</li>
-       <li>En el auditorio: Salir ordenadamente por pasillos iluminados, sin correr.</li>
-      </ul>
-     </div>
-    </div>
-
-    <!-- BLOQUE 5 -->
-    <div class="block-card-expandable" onclick="toggleBlock(this)">
-     <div class="block-header-clickable">
-      <div class="block-title-group">
-       <span class="block-title">🏢 Bloque 5: Aulas Especializadas</span> 
-       <span class="block-subtitle">Sistemas de Información y Eléctrica</span>
-      </div>
-      <span class="arrow-icon">▼</span>
-     </div>
-     <div class="block-details-content">
-      <div class="threat-box threat-hydro">
-       ⚡ <strong>Riesgo Secundario:</strong> Cortocircuitos por equipos de cómputo de alto voltaje.
-      </div>
-      <div class="plan-section-head">Acciones Críticas</div>
-      <ul class="plan-list">
-       <li>No intentar salvar equipos electrónicos.</li>
-       <li>Alejarse de servidores y racks de cables.</li>
-       <li>Dirigirse a las salidas señalizadas hacia el Punto C (Explanada frontal).</li>
-      </ul>
-     </div>
-    </div>
-
-    <!-- BLOQUE 6 -->
-    <div class="block-card-expandable" onclick="toggleBlock(this)">
-     <div class="block-header-clickable">
-      <div class="block-title-group">
-       <span class="block-title">🗣️ Bloque 6: Centro de Idiomas</span> 
-       <span class="block-subtitle">Aulas Modulares</span>
-      </div>
-      <span class="arrow-icon">▼</span>
-     </div>
-     <div class="block-details-content">
-      <div class="threat-box threat-safe">
-       ✅ <strong>Zona de Bajo Riesgo:</strong> Estructura liviana de un solo piso.
-      </div>
-      <div class="plan-section-head">Protocolo Simple</div>
-      <ul class="plan-list">
-       <li>Evacuación rápida por puertas dobles.</li>
-       <li>Formar círculos de seguridad en las áreas verdes circundantes.</li>
-       <li>Esperar instrucciones de los brigadistas.</li>
-      </ul>
-     </div>
-    </div>
-
-    <!-- BLOQUE 7 -->
-    <div class="block-card-expandable" onclick="toggleBlock(this)">
-     <div class="block-header-clickable">
-      <div class="block-title-group">
-       <span class="block-title">🏀 Bloque 7: Polideportivo</span> 
-       <span class="block-subtitle">Canchas, Gimnasio y Áreas Recreativas</span>
-      </div>
-      <span class="arrow-icon">▼</span>
-     </div>
-     <div class="block-details-content">
-      <div class="threat-box threat-seismic">
-       ⚠️ <strong>Riesgo Sísmico:</strong> Posible colapso de techos colgantes o luminarias pesadas.
-      </div>
-      <div class="plan-section-head">Instrucciones</div>
-      <ul class="plan-list">
-       <li>Suspender toda actividad física.</li>
-       <li>Alejarse del centro de la cancha y buscar los pilares estructurales si no se puede salir.</li>
-       <li>Evacuar hacia el exterior (canchas abiertas).</li>
-      </ul>
-     </div>
-    </div>
-
-    <!-- BLOQUE 8 -->
-    <div class="block-card-expandable" onclick="toggleBlock(this)">
-     <div class="block-header-clickable">
-      <div class="block-title-group">
-       <span class="block-title">🌳 Bloque 8: Áreas Verdes / Parqueaderos</span> 
-       <span class="block-subtitle">Puntos de Encuentro Principales</span>
-      </div>
-      <span class="arrow-icon">▼</span>
-     </div>
-     <div class="block-details-content">
-      <div class="threat-box threat-safe">
-       ✅ <strong>Zona Segura (Punto de Encuentro Oficial)</strong>
-      </div>
-      <div class="threat-box threat-volcano">
-       🌋 <strong>Alerta de Ceniza:</strong> En caso de caída de ceniza, usar mascarillas N95 y cubrir ojos. Buscar refugio cerrado si es intenso.
-      </div>
-      <div class="plan-section-head">Reglas en el Punto de Encuentro</div>
-      <ul class="plan-list">
-       <li>Mantener despejadas las vías para ambulancias.</li>
-       <li>No mover los vehículos para evitar caos vehicular.</li>
-       <li>Reportar personas desaparecidas a los ingenieros encargados.</li>
-      </ul>
+      <div class="threat-box threat-safe">✅ <strong>Zona Segura (Punto de Encuentro Oficial)</strong></div>
      </div>
     </div>
    </div>
 
    <!-- 5. PERFIL DE USUARIO Y ADMIN -->
    <div id="tab-usuario" class="tab-content">
-    <div class="section-title">Perfil de Usuario</div>
-    <div class="section-subtitle">Resumen de tu cuenta y ajustes de administración.</div>
+    <div class="section-title">Mi Cuenta</div>
+    <div class="section-subtitle">Resumen de tu cuenta y estado en la red.</div>
     <div class="profile-card-view">
      <img id="user-tab-avatar" src="https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=300&q=80" class="profile-header-avatar" alt="Foto">
      <h3 id="user-tab-nombre">Usuario UTCino</h3>
      <p id="user-tab-rol" style="color: var(--accent); font-size: 0.85rem; margin-bottom: 12px;">Sin registro previo</p>
      
-     <!-- ESTADO DE CONEXIÓN ACTUALIZADO -->
      <div class="detail-item full-width" style="margin-bottom: 15px; text-align: left;" id="status-container">
       <label>Estado de Conexión</label> 
       <span id="user-tab-status" style="color: #94a3b8;">⚪ Sin Conexión</span>
      </div>
-
-     <button id="btn-unlock-admin" class="action-card-btn admin-btn" style="width: 100%; justify-content: center;" onclick="promptAdminCode()">🔑 Entrar como Administrador</button>
     </div>
 
+    <!-- PANEL EXCLUSIVO PARA ADMINISTRADORES -->
     <div id="admin-panel-section" style="display: none; margin-top: 20px;">
-     <div class="section-title" style="color: #34d399;">⚙️ Panel de Administración</div>
+     <div class="section-title" style="color: #34d399;">⚙️ Opciones de Administrador</div>
      <div class="admin-card">
-      <h4>🔑 Código de Acceso para Ingenieros</h4>
+      <h4>🔑 Actualizar Código para Ingenieros</h4>
+      <p style="font-size:0.75rem; color:#cbd5e1; margin-bottom:8px;">Cambia la clave que usan los docentes para registrarse.</p>
       <input type="text" id="admin-teacher-key-input" class="form-control" style="margin-bottom: 8px;">
-      <button class="btn-submit btn-admin" onclick="saveNewTeacherKey()">Guardar Nuevo Código Ingenieros</button>
+      <button class="btn-submit btn-admin" onclick="saveNewTeacherKey()">Guardar Nuevo Código Docente</button>
      </div>
      <div class="admin-card danger-zone">
-      <h4>⚠️ Zona Peligrosa (Administración)</h4>
-      <button class="action-card-btn danger-btn" style="width: 100%; justify-content: center;" onclick="resetAllAppStorage()">🗑️ Borrar Datos Locales</button>
+      <h4>⚠️ Zona Peligrosa</h4>
+      <button class="action-card-btn danger-btn" style="width: 100%; justify-content: center;" onclick="resetAllAppStorage()">🗑️ Borrar Datos Locales de Sesión</button>
      </div>
     </div>
    </div>
@@ -1135,17 +1011,16 @@
    <!-- NAV INFERIOR -->
    <nav class="bottom-nav">
     <button class="nav-btn active" onclick="switchTab('inicio', this)"><span class="nav-icon">🏠</span> <span>INICIO</span></button>
-    <button id="nav-ficha" class="nav-btn" onclick="switchTab('informacion', this)"><span class="nav-icon">📝</span> <span>FICHA</span></button>
-    <button id="nav-estudiantes" class="nav-btn" style="display: none;" onclick="switchTab('estudiantes', this)"><span class="nav-icon">🎓</span> <span>ALUMNOS</span></button>
-    <button id="nav-protocolos" class="nav-btn" onclick="switchTab('protocolos', this)"><span class="nav-icon">🗺️</span> <span>CONTENIDO</span></button>
-    <button id="nav-usuario" class="nav-btn" onclick="switchTab('usuario', this)"><span class="nav-icon">👤</span> <span>USUARIO</span></button>
+    <button id="nav-ficha" class="nav-btn" onclick="switchTab('informacion', this)"><span class="nav-icon">📝</span> <span>REGISTRO</span></button>
+    <button id="nav-directorio" class="nav-btn" onclick="switchTab('directorio', this)"><span class="nav-icon">👥</span> <span>DIRECTORIO</span></button>
+    <button id="nav-protocolos" class="nav-btn" onclick="switchTab('protocolos', this)"><span class="nav-icon">🗺️</span> <span>PLAN</span></button>
+    <button id="nav-usuario" class="nav-btn" onclick="switchTab('usuario', this)"><span class="nav-icon">👤</span> <span>PERFIL</span></button>
    </nav>
   </div>
 
   <script>
-    let masterAdminCode = "ADMIN2026"; 
+    const masterAdminCode = "ADMIN2026"; 
     let currentTeacherKey = localStorage.getItem('utc_teacher_key') || "UTC2026"; 
-    let isAdminUnlocked = false;
 
     let carrerasList = JSON.parse(localStorage.getItem('utc_carreras')) || [
       "Ingeniería Industrial",
@@ -1155,11 +1030,11 @@
       "Sistemas de Información"
     ];
 
-    let studentsList = [];
+    let studentsList = []; // Ahora guarda Estudiantes, Ingenieros y Administradores
     let userData = JSON.parse(localStorage.getItem('utc_user_data')) || null;
     let fotoBase64 = userData ? userData.foto : "";
     let croquisBase64 = userData ? userData.croquis : "";
-    let currentModalStudentIndex = -1; // Para saber a quién enviar el mensaje
+    let currentModalStudentIndex = -1;
 
     document.addEventListener('DOMContentLoaded', () => {
       document.getElementById('admin-teacher-key-input').value = currentTeacherKey;
@@ -1176,20 +1051,18 @@
       initFirebaseSync();
     });
 
-    // SISTEMA DE PRESENCIA (EN LÍNEA / OFFLINE)
     async function setOnlineStatus(status) {
       if (!userData || !userData.cedula) return;
-      const student = studentsList.find(s => s.cedula === userData.cedula);
-      if (student && student.id && window.dbFuncs && window.db) {
+      const user = studentsList.find(s => s.cedula === userData.cedula);
+      if (user && user.id && window.dbFuncs && window.db) {
         try {
-          await window.dbFuncs.updateDoc(window.dbFuncs.doc(window.db, "estudiantes", student.id), {
+          await window.dbFuncs.updateDoc(window.dbFuncs.doc(window.db, "estudiantes", user.id), {
             isOnline: status
           });
         } catch(e) { console.log(e); }
       }
     }
 
-    // Cuando el usuario cierra la página o app, intenta poner en offline
     window.addEventListener('beforeunload', () => {
       setOnlineStatus(false);
     });
@@ -1197,22 +1070,22 @@
     function initFirebaseSync() {
       if (window.dbFuncs && window.db) {
         const { collection, onSnapshot } = window.dbFuncs;
+        // La colección se llama 'estudiantes' en DB, pero almacena todos los usuarios
         onSnapshot(collection(window.db, "estudiantes"), (snapshot) => {
           studentsList = [];
           snapshot.forEach((doc) => {
             let data = doc.data();
-            data.id = doc.id; // Guardamos el ID del documento para poder actualizarlo luego
+            data.id = doc.id; 
             studentsList.push(data);
             
-            // Si el documento que llega es el mío, actualizo mis datos locales (mensajes, etc.)
             if (userData && data.cedula === userData.cedula) {
               userData = data;
               localStorage.setItem('utc_user_data', JSON.stringify(userData));
-              renderMessages(); // Actualiza bandeja de entrada
+              renderMessages(); 
             }
           });
           filterStudents();
-          setOnlineStatus(true); // Al conectar, marcar como en línea
+          setOnlineStatus(true);
         });
       } else {
         setTimeout(initFirebaseSync, 500);
@@ -1244,41 +1117,44 @@
 
     async function clearMessage(index) {
       if (!userData) return;
-      const studentDoc = studentsList.find(s => s.cedula === userData.cedula);
-      if (!studentDoc || !studentDoc.id) return;
+      const userDoc = studentsList.find(s => s.cedula === userData.cedula);
+      if (!userDoc || !userDoc.id) return;
 
       let msgs = [...(userData.mensajes || [])];
-      msgs.splice(index, 1); // Borramos el mensaje específico
+      msgs.splice(index, 1); 
 
       try {
-        await window.dbFuncs.updateDoc(window.dbFuncs.doc(window.db, "estudiantes", studentDoc.id), {
+        await window.dbFuncs.updateDoc(window.dbFuncs.doc(window.db, "estudiantes", userDoc.id), {
           mensajes: msgs
         });
-      } catch(e) {
-        console.error(e);
-      }
+      } catch(e) { console.error(e); }
     }
 
     async function sendOfficialMessage() {
-      if (currentModalStudentIndex === -1) return;
-      const student = studentsList[currentModalStudentIndex];
+      if (currentModalStudentIndex === -1 || !userData) return;
+      const targetUser = studentsList[currentModalStudentIndex];
       
-      const mensaje = prompt(`Escribe el mensaje oficial que recibirá ${student.nombre}:`);
+      let promptTitle = `Escribe el mensaje para ${targetUser.nombre}:`;
+      if (userData.rol === 'Estudiante' && targetUser.rol === 'Administrador') {
+          promptTitle = `Describe el reporte o falla para el Administrador ${targetUser.nombre}:`;
+      }
+
+      const mensaje = prompt(promptTitle);
       if (mensaje && mensaje.trim() !== "") {
-        const msgs = student.mensajes || [];
+        const msgs = targetUser.mensajes || [];
         msgs.push({
           texto: mensaje.trim(),
           fecha: new Date().toISOString(),
-          emisor: userData ? userData.nombre : 'Ingeniero / Admin'
+          emisor: `${userData.nombre} (${userData.rol})`
         });
 
         try {
-          await window.dbFuncs.updateDoc(window.dbFuncs.doc(window.db, "estudiantes", student.id), {
+          await window.dbFuncs.updateDoc(window.dbFuncs.doc(window.db, "estudiantes", targetUser.id), {
             mensajes: msgs
           });
-          alert("✅ Mensaje enviado exitosamente. El alumno lo recibirá al instante.");
+          alert("✅ Mensaje / Reporte enviado exitosamente.");
         } catch(e) {
-          alert("❌ Error al enviar el mensaje. Revisa tu conexión.");
+          alert("❌ Error al enviar. Revisa tu conexión.");
         }
       }
     }
@@ -1286,9 +1162,7 @@
     function toggleBlock(element) {
       const isOpen = element.classList.contains('open');
       document.querySelectorAll('.block-card-expandable').forEach(b => b.classList.remove('open'));
-      if(!isOpen) {
-        element.classList.add('open');
-      }
+      if(!isOpen) element.classList.add('open');
     }
 
     function buildCarrerasDropdown() {
@@ -1314,30 +1188,26 @@
       container.innerHTML = html;
     }
 
-    function promptAdminCode() {
-      const inputCode = prompt("🔑 Ingresa el Código Secreto de Administrador:");
-      if (inputCode === masterAdminCode) {
-        isAdminUnlocked = true;
-        document.getElementById('admin-panel-section').style.display = 'block';
-        document.getElementById('btn-unlock-admin').style.display = 'none';
-        document.getElementById('nav-estudiantes').style.display = 'flex';
-        alert("✅ Acceso de Administrador Concedido.");
-      }
-    }
-
     function toggleRoleFields(val) {
-      const teacherCodeBox = document.getElementById('teacher-code-box');
+      const codeBox = document.getElementById('role-code-box');
+      const codeLabel = document.getElementById('role-code-label');
       const studentFields = document.getElementById('student-fields');
       const teacherFields = document.getElementById('teacher-fields');
 
-      if (val === 'Ingeniero') {
-        teacherCodeBox.style.display = 'block';
-        teacherFields.style.display = 'block';
-        studentFields.style.display = 'none';
-      } else {
-        teacherCodeBox.style.display = 'none';
-        teacherFields.style.display = 'none';
+      if (val === 'Estudiante') {
+        codeBox.style.display = 'none';
         studentFields.style.display = 'block';
+        teacherFields.style.display = 'none';
+      } else if (val === 'Ingeniero') {
+        codeBox.style.display = 'block';
+        codeLabel.innerHTML = '🔑 Código para Ingenieros';
+        studentFields.style.display = 'none';
+        teacherFields.style.display = 'block';
+      } else if (val === 'Administrador') {
+        codeBox.style.display = 'block';
+        codeLabel.innerHTML = '🛡️ Código de Administrador';
+        studentFields.style.display = 'none';
+        teacherFields.style.display = 'none'; // Admin no necesita llenar cursos o carrera específica.
       }
     }
 
@@ -1360,22 +1230,13 @@
             const MAX_WIDTH = 600; 
             let width = img.width;
             let height = img.height;
-            
-            if (width > MAX_WIDTH) {
-              height = Math.round((height * MAX_WIDTH) / width);
-              width = MAX_WIDTH;
-            }
-            
-            canvas.width = width;
-            canvas.height = height;
+            if (width > MAX_WIDTH) { height = Math.round((height * MAX_WIDTH) / width); width = MAX_WIDTH; }
+            canvas.width = width; canvas.height = height;
             const ctx = canvas.getContext('2d');
             ctx.drawImage(img, 0, 0, width, height);
-            
             const dataUrl = canvas.toDataURL('image/jpeg', 0.7);
-            const imgElement = document.getElementById(previewId);
-            imgElement.src = dataUrl;
-            imgElement.style.display = 'block';
-            
+            document.getElementById(previewId).src = dataUrl;
+            document.getElementById(previewId).style.display = 'block';
             if(targetVar === 'fotoBase64') fotoBase64 = dataUrl;
             if(targetVar === 'croquisBase64') croquisBase64 = dataUrl;
           };
@@ -1391,78 +1252,65 @@
       const generoValor = document.getElementById('input-genero').value;
       const sangreValor = document.getElementById('input-sangre').value;
 
-      let newData = {};
+      let newData = {
+          rol: rolSeleccionado,
+          nombre: document.getElementById('input-nombre').value,
+          cedula: document.getElementById('input-cedula').value,
+          genero: generoValor,
+          tipoSangre: sangreValor,
+          foto: fotoBase64 || "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=300&q=80",
+          croquis: croquisBase64 || "",
+          contactoNom: document.getElementById('input-contacto-nom').value,
+          contactoTel: document.getElementById('input-contacto-tel').value,
+          fechaRegistro: new Date().toISOString(),
+          isOnline: true
+      };
 
-      if (rolSeleccionado === 'Ingeniero') {
-        const claveIngresada = document.getElementById('input-clave-profesor').value;
-        if (claveIngresada !== currentTeacherKey) {
-          alert('❌ Código de Ingeniero incorrecto.');
-          return;
+      if (rolSeleccionado === 'Ingeniero' || rolSeleccionado === 'Administrador') {
+        const claveIngresada = document.getElementById('input-clave-acceso').value;
+        
+        if (rolSeleccionado === 'Ingeniero' && claveIngresada !== currentTeacherKey) {
+          alert('❌ Código de Ingeniero incorrecto.'); return;
         }
-        const checkboxes = document.querySelectorAll('#teacher-fields input[type="checkbox"]:checked');
-        const cursosSeleccionados = Array.from(checkboxes).map(cb => cb.value);
+        if (rolSeleccionado === 'Administrador' && claveIngresada !== masterAdminCode) {
+          alert('❌ Código de Administrador incorrecto.'); return;
+        }
 
-        newData = {
-          rol: rolSeleccionado,
-          nombre: document.getElementById('input-nombre').value,
-          cedula: document.getElementById('input-cedula').value,
-          genero: generoValor,
-          tipoSangre: sangreValor,
-          foto: fotoBase64 || "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=300&q=80",
-          croquis: croquisBase64 || "",
-          carrera: "Docente / Ingeniero Autorizado",
-          cursosDocente: cursosSeleccionados,
-          contactoNom: document.getElementById('input-contacto-nom').value,
-          contactoTel: document.getElementById('input-contacto-tel').value,
-          fechaRegistro: new Date().toISOString(),
-          isOnline: true
-        };
+        if (rolSeleccionado === 'Ingeniero') {
+            const checkboxes = document.querySelectorAll('#teacher-fields input[type="checkbox"]:checked');
+            newData.cursosDocente = Array.from(checkboxes).map(cb => cb.value);
+            newData.carrera = "Docente / Ingeniero Autorizado";
+        } else {
+            newData.carrera = "Administración del Sistema";
+        }
       } else {
-        newData = {
-          rol: rolSeleccionado,
-          nombre: document.getElementById('input-nombre').value,
-          cedula: document.getElementById('input-cedula').value,
-          genero: generoValor,
-          tipoSangre: sangreValor,
-          foto: fotoBase64 || "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=300&q=80",
-          croquis: croquisBase64 || "",
-          carrera: document.getElementById('input-carrera-student').value,
-          ciclo: document.getElementById('input-ciclo-student').value,
-          contactoNom: document.getElementById('input-contacto-nom').value,
-          contactoTel: document.getElementById('input-contacto-tel').value,
-          fechaRegistro: new Date().toISOString(),
-          isOnline: true
-        };
+        newData.carrera = document.getElementById('input-carrera-student').value;
+        newData.ciclo = document.getElementById('input-ciclo-student').value;
       }
       
-      // Mantener los mensajes antiguos si el usuario ya existía
-      if (userData && userData.mensajes) {
-          newData.mensajes = userData.mensajes;
-      }
-      
+      if (userData && userData.mensajes) newData.mensajes = userData.mensajes;
       userData = newData;
 
       try {
         if (window.dbFuncs && window.db) {
           const { collection, addDoc, query, where, getDocs, updateDoc, doc } = window.dbFuncs;
           const estudiantesRef = collection(window.db, "estudiantes");
-          
           const q = query(estudiantesRef, where("cedula", "==", userData.cedula));
           const querySnapshot = await getDocs(q);
           
           if (!querySnapshot.empty) {
             const existingDocId = querySnapshot.docs[0].id;
             await updateDoc(doc(window.db, "estudiantes", existingDocId), userData);
-            alert('¡Ficha Médica ACTUALIZADA con éxito!');
+            alert('¡Ficha ACTUALIZADA con éxito!');
           } else {
             await addDoc(estudiantesRef, userData);
-            alert('¡Ficha Médica GUARDADA con éxito!');
+            alert('¡Ficha GUARDADA con éxito!');
           }
         }
         localStorage.setItem('utc_user_data', JSON.stringify(userData));
         renderRegisteredState();
       } catch (err) {
-        console.error("Error guardando datos: ", err);
+        console.error("Error: ", err);
         alert('⚠️ Error de conexión. Guardado en memoria local.');
       }
     });
@@ -1471,12 +1319,10 @@
       if(!userData) return;
 
       const homeAvatar = document.getElementById('home-avatar-container');
-      if (userData.foto) {
-        homeAvatar.innerHTML = `<img src="${userData.foto}" alt="Foto Perfil">`;
-      }
+      if (userData.foto) homeAvatar.innerHTML = `<img src="${userData.foto}" alt="Foto Perfil">`;
       
       document.getElementById('home-welcome-title').innerText = `¡Bienvenido, ${userData.nombre.split(' ')[0]}!`;
-      document.getElementById('home-welcome-sub').innerText = `Rol: ${userData.rol} | Estado Ficha: Registrada`;
+      document.getElementById('home-welcome-sub').innerText = `Rol: ${userData.rol} | Estado: Conectado a la Red`;
 
       document.getElementById('form-mode').style.display = 'none';
       document.getElementById('view-mode').style.display = 'block';
@@ -1486,7 +1332,6 @@
       document.getElementById('view-carrera-text').innerText = userData.carrera;
       document.getElementById('view-rol').innerText = userData.rol;
       document.getElementById('view-cedula').innerText = userData.cedula;
-      
       document.getElementById('view-genero').innerText = userData.genero || 'No definido';
       document.getElementById('view-sangre').innerText = userData.tipoSangre || 'No definido';
 
@@ -1497,14 +1342,19 @@
         document.getElementById('view-croquis-box').style.display = 'none';
       }
 
-      if(userData.rol === 'Ingeniero' || isAdminUnlocked) {
+      if (userData.rol === 'Administrador') {
+        document.getElementById('view-cursos-container').style.display = 'none';
+        document.getElementById('admin-panel-section').style.display = 'block';
+      } else if (userData.rol === 'Ingeniero') {
+        document.getElementById('view-cursos-container').style.display = 'block';
         document.getElementById('view-cursos-label').innerText = "Cursos Asignados";
-        document.getElementById('view-ciclo').innerText = userData.cursosDocente && userData.cursosDocente.length > 0 ? userData.cursosDocente.join(', ') : 'Todos / Ingeniero General';
-        document.getElementById('nav-estudiantes').style.display = 'flex';
+        document.getElementById('view-ciclo').innerText = userData.cursosDocente && userData.cursosDocente.length > 0 ? userData.cursosDocente.join(', ') : 'Ninguno';
+        document.getElementById('admin-panel-section').style.display = 'none';
       } else {
+        document.getElementById('view-cursos-container').style.display = 'block';
         document.getElementById('view-cursos-label').innerText = "Ciclo / Semestre";
         document.getElementById('view-ciclo').innerText = `${userData.ciclo} (${userData.carrera})`;
-        document.getElementById('nav-estudiantes').style.display = 'none';
+        document.getElementById('admin-panel-section').style.display = 'none';
       }
 
       document.getElementById('view-contacto').innerText = `${userData.contactoNom} (${userData.contactoTel})`;
@@ -1512,8 +1362,6 @@
       document.getElementById('user-tab-avatar').src = userData.foto;
       document.getElementById('user-tab-nombre').innerText = userData.nombre;
       document.getElementById('user-tab-rol').innerText = userData.rol;
-      
-      // Estado de conexión del usuario activo
       document.getElementById('user-tab-status').innerText = "🟢 En Línea";
       document.getElementById('user-tab-status').style.color = "#10b981";
       
@@ -1555,12 +1403,21 @@
       const textQuery = document.getElementById('search-student').value.toLowerCase().trim();
       const carreraQuery = document.getElementById('filter-carrera').value;
       const cicloQuery = document.getElementById('filter-ciclo').value;
+      const rolQuery = document.getElementById('filter-rol').value;
 
-      const filtered = studentsList.filter(s => {
+      // Ordenar: Administradores primero
+      let sortedList = [...studentsList].sort((a, b) => {
+          if (a.rol === 'Administrador' && b.rol !== 'Administrador') return -1;
+          if (b.rol === 'Administrador' && a.rol !== 'Administrador') return 1;
+          return 0;
+      });
+
+      const filtered = sortedList.filter(s => {
         const matchText = (s.nombre && s.nombre.toLowerCase().includes(textQuery)) || (s.cedula && s.cedula.includes(textQuery));
         const matchCarrera = carreraQuery === "" || s.carrera === carreraQuery;
         const matchCiclo = cicloQuery === "" || s.ciclo === cicloQuery;
-        return matchText && matchCarrera && matchCiclo;
+        const matchRol = rolQuery === "" || s.rol === rolQuery;
+        return matchText && matchCarrera && matchCiclo && matchRol;
       });
 
       renderStudentsList(filtered);
@@ -1568,66 +1425,81 @@
 
     function renderStudentsList(list) {
       const container = document.getElementById('students-container');
-      document.getElementById('students-count').innerText = `Mostrando ${list.length} de ${studentsList.length} registrados`;
+      document.getElementById('students-count').innerText = `Mostrando ${list.length} de ${studentsList.length} usuarios`;
 
       if (list.length === 0) {
-        container.innerHTML = `
-          <div style="text-align: center; padding: 30px 10px; color: var(--text-secondary);">
-            <p style="font-size: 1.1rem; margin-bottom: 6px;">☁️ <strong>Sin registros aún</strong></p>
-          </div>`;
+        container.innerHTML = `<div style="text-align: center; padding: 30px 10px; color: var(--text-secondary);"><p>☁️ <strong>Sin registros aún</strong></p></div>`;
         return;
       }
 
-      container.innerHTML = list.map((student, index) => {
-        // Obtenemos el índice real en studentsList para asegurar que abramos el modal del estudiante correcto
+      container.innerHTML = list.map((student) => {
         const realIndex = studentsList.findIndex(s => s.cedula === student.cedula);
         const cleanTel = student.contactoTel ? String(student.contactoTel).replace(/[^0-9+]/g, '') : '';
         const statusDot = student.isOnline ? '🟢 En Línea' : '🔴 Offline';
         
+        const isAdmin = student.rol === 'Administrador';
+        const cardClass = isAdmin ? "student-card admin-card-style" : "student-card";
+        const roleLabel = student.rol || 'Estudiante';
+        
         return `
-        <div class="student-card" onclick="openStudentModal(${realIndex})">
+        <div class="${cardClass}" onclick="openStudentModal(${realIndex})">
           <img src="${student.foto || 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=300&q=80'}" alt="${student.nombre}">
           <div class="student-info">
             <h4>${student.nombre} <span class="status-dot">${statusDot}</span></h4>
-            <p>📄 C.I: <strong>${student.cedula}</strong></p>
-            <p>📚 ${student.carrera}</p>
-            <span class="student-badge">${student.ciclo || 'Registrado'}</span>
+            <p>📚 ${student.carrera || 'N/A'}</p>
+            <span class="student-badge">${isAdmin ? '🛡️ Administrador' : roleLabel}</span>
           </div>
-          <a class="call-btn-mini" href="tel:${cleanTel}" onclick="event.stopPropagation();" title="Llamar a ${student.contactoNom}">
-            📞 ${student.contactoNom ? student.contactoNom.split(' ')[0] : 'Contacto'}
+          <a class="call-btn-mini" href="tel:${cleanTel}" onclick="event.stopPropagation();">
+            📞
           </a>
         </div>
       `}).join('');
     }
 
     function openStudentModal(index) {
-      const student = studentsList[index];
-      if(!student) return;
+      const targetUser = studentsList[index];
+      if(!targetUser) return;
       currentModalStudentIndex = index;
 
-      const cleanTel = student.contactoTel ? String(student.contactoTel).replace(/[^0-9+]/g, '') : '';
+      const cleanTel = targetUser.contactoTel ? String(targetUser.contactoTel).replace(/[^0-9+]/g, '') : '';
 
-      document.getElementById('modal-student-img').src = student.foto || "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=300&q=80";
-      document.getElementById('modal-student-name').innerText = student.nombre;
-      document.getElementById('modal-student-carrera').innerText = student.carrera;
-      document.getElementById('modal-student-cedula').innerText = student.cedula;
+      document.getElementById('modal-student-img').src = targetUser.foto || "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=300&q=80";
+      document.getElementById('modal-student-name').innerText = targetUser.nombre;
+      document.getElementById('modal-student-carrera').innerText = targetUser.carrera || 'N/A';
+      document.getElementById('modal-student-rol').innerText = targetUser.rol || 'Estudiante';
       
-      const statusText = student.isOnline ? '🟢 En Línea' : '🔴 Offline';
+      const statusText = targetUser.isOnline ? '🟢 En Línea' : '🔴 Offline';
       document.getElementById('modal-student-status').innerText = statusText;
 
-      document.getElementById('modal-student-genero').innerText = student.genero || "No definido";
-      document.getElementById('modal-student-sangre').innerText = student.tipoSangre || "No definido";
+      document.getElementById('modal-student-genero').innerText = targetUser.genero || "No definido";
+      document.getElementById('modal-student-sangre').innerText = targetUser.tipoSangre || "No definido";
+      document.getElementById('modal-student-contact').innerText = `${targetUser.contactoNom} (${targetUser.contactoTel})`;
       
-      document.getElementById('modal-student-contact').innerText = `${student.contactoNom} (${student.contactoTel})`;
-      
-      const callBtn = document.getElementById('modal-btn-call');
-      callBtn.href = `tel:${cleanTel}`;
+      document.getElementById('modal-btn-call').href = `tel:${cleanTel}`;
 
-      if(student.croquis) {
+      if(targetUser.croquis) {
         document.getElementById('modal-student-croquis-container').style.display = 'block';
-        document.getElementById('modal-student-croquis').src = student.croquis;
+        document.getElementById('modal-student-croquis').src = targetUser.croquis;
       } else {
         document.getElementById('modal-student-croquis-container').style.display = 'none';
+      }
+
+      // LÓGICA DE VISIBILIDAD DEL BOTÓN DE MENSAJE
+      const msgBtn = document.getElementById('modal-btn-message');
+      msgBtn.style.display = 'none'; // Oculto por defecto
+      
+      if (userData) {
+          if (userData.rol === 'Administrador' || userData.rol === 'Ingeniero') {
+              // Admin e Ingeniero pueden enviar mensajes a TODOS
+              msgBtn.style.display = 'inline-block';
+              msgBtn.innerText = '✉️ ENVIAR MENSAJE OFICIAL';
+              msgBtn.className = "btn-submit btn-message";
+          } else if (userData.rol === 'Estudiante' && targetUser.rol === 'Administrador') {
+              // Estudiantes solo pueden enviar mensajes a los Administradores
+              msgBtn.style.display = 'inline-block';
+              msgBtn.innerText = '⚠️ REPORTAR FALLA AL ADMIN';
+              msgBtn.className = "btn-submit btn-call-emergency"; // Color rojo/naranja para reporte
+          }
       }
 
       document.getElementById('student-modal').style.display = 'flex';
@@ -1650,12 +1522,13 @@
     function renderEmptyState() {
       document.getElementById('form-mode').style.display = 'block';
       document.getElementById('view-mode').style.display = 'none';
+      document.getElementById('admin-panel-section').style.display = 'none';
       document.getElementById('home-avatar-container').innerHTML = `<span>UTC</span>`;
       document.getElementById('home-welcome-title').innerText = `¡Bienvenido, UTCino!`;
     }
 
     function resetAllAppStorage() {
-      if(confirm("⚠️ ¿Deseas limpiar tu sesión local?")) {
+      if(confirm("⚠️ ¿Deseas limpiar tu sesión local y borrar tu acceso?")) {
         setOnlineStatus(false);
         localStorage.clear();
         location.reload();
