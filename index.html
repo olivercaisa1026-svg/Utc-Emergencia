@@ -870,23 +870,20 @@
    <!-- 3. DIRECTORIO INSTITUCIONAL -->
    <div id="tab-directorio" class="tab-content">
     <div class="section-title">Directorio del Campus</div>
-    <div class="section-subtitle">Busca administradores, ingenieros o personal en la red.</div>
+    <div class="section-subtitle">Busca ingenieros o personal en la red utilizando los filtros.</div>
     <div class="filter-box">
      <input type="text" id="search-student" class="form-control" placeholder="🔍 Buscar nombre o cédula..." oninput="filterStudents()">
      
-     <select id="filter-rol" class="form-control" onchange="filterStudents()" style="margin-bottom: 8px;">
-        <option value="">Todos los Roles</option>
-        <option value="Administrador">Administradores (Soporte)</option>
-        <option value="Ingeniero">Ingenieros / Docentes</option>
-        <option value="Estudiante" id="opt-filter-estudiantes">Estudiantes</option>
+     <select id="filter-rol" class="form-control" onchange="filterStudents()" style="margin-bottom: 8px; display: none;">
+        <!-- El rol ya no se usa como filtro manual para no confundir. Se filtra por curso/carrera. -->
      </select>
 
      <div style="display: flex; gap: 8px;">
       <select id="filter-carrera" class="form-control" onchange="filterStudents()"> 
-       <option value="">Todas las Carreras</option> 
+       <option value="">Buscar por Carrera...</option> 
       </select> 
       <select id="filter-ciclo" class="form-control" onchange="filterStudents()"> 
-       <option value="">Todos los Semestres</option> 
+       <option value="">Buscar por Semestre...</option> 
        <option value="1ro Semestre">1ro Semestre</option> 
        <option value="2do Semestre">2do Semestre</option> 
        <option value="3ro Semestre">3ro Semestre</option> 
@@ -938,7 +935,7 @@
     </div>
    </div>
 
-   <!-- 4. CONTENIDO DE PLAN DE BLOQUES -->
+   <!-- 4. CONTENIDO DE PLAN DE BLOQUES (8 BLOQUES) -->
    <div id="tab-protocolos" class="tab-content">
     <div class="section-title">Contenido de Plan</div>
     <div class="section-subtitle">Toca cada bloque para desplegar el Plan de Reconocimiento.</div>
@@ -1019,7 +1016,7 @@
       <span class="arrow-icon">▼</span>
      </div>
      <div class="block-details-content">
-      <div class="threat-box threat-seismic">🫨 <strong>Amenaza Sísmica:</strong> Apagar estufas o freidoras inmediatamente si es posible antes de evacuated.</div>
+      <div class="threat-box threat-seismic">🫨 <strong>Amenaza Sísmica:</strong> Apagar estufas o freidoras inmediatamente si es posible antes de evacuar.</div>
       <div class="plan-section-head">Rutas de Evacuación</div>
       <ul class="plan-list">
         <li>Salida por la puerta frontal de atención al cliente y puertas traseras de servicio.</li>
@@ -1034,7 +1031,7 @@
      <div class="block-header-clickable">
       <div class="block-title-group">
        <span class="block-title">⚽ Bloque 5: Coliseo y Áreas Deportivas</span> 
-       <span class="block-subtitle">Gimnasio y Pista Atletica</span>
+       <span class="block-subtitle">Gimnasio y Pista Atlética</span>
       </div>
       <span class="arrow-icon">▼</span>
      </div>
@@ -1042,10 +1039,70 @@
       <div class="threat-box threat-volcano">🌋 <strong>Amenaza Volcánica:</strong> Buscar refugio inmediato en vestidores antes de evacuar al exterior si caen cenizas gruesas.</div>
       <div class="plan-section-head">Rutas de Evacuación</div>
       <ul class="plan-list">
-        <li>Usar las portones dobles de escape directo al campo abierto.</li>
+        <li>Usar los portones dobles de escape directo al campo abierto.</li>
       </ul>
       <div class="plan-section-head">Zona Segura de Encuentro</div>
       <div class="threat-box threat-safe">🟢 <strong>Punto E:</strong> Centro de la Pista Atlética Principal.</div>
+     </div>
+    </div>
+
+    <!-- BLOQUE 6 -->
+    <div class="block-card-expandable" onclick="toggleBlock(this)">
+     <div class="block-header-clickable">
+      <div class="block-title-group">
+       <span class="block-title">🗣️ Bloque 6: Centro de Idiomas</span> 
+       <span class="block-subtitle">Aulas de Inglés y Tutorías Académicas</span>
+      </div>
+      <span class="arrow-icon">▼</span>
+     </div>
+     <div class="block-details-content">
+      <div class="threat-box threat-seismic">🫨 <strong>Amenaza Sísmica:</strong> Evacuar usando las escaleras principales hacia el patio sur. No usar ascensores.</div>
+      <div class="plan-section-head">Rutas de Evacuación</div>
+      <ul class="plan-list">
+        <li>Bajar por el ala sur en orden y calma.</li>
+      </ul>
+      <div class="plan-section-head">Zona Segura de Encuentro</div>
+      <div class="threat-box threat-safe">🟢 <strong>Punto F:</strong> Canchas de uso múltiple Sur.</div>
+     </div>
+    </div>
+
+    <!-- BLOQUE 7 -->
+    <div class="block-card-expandable" onclick="toggleBlock(this)">
+     <div class="block-header-clickable">
+      <div class="block-title-group">
+       <span class="block-title">🎓 Bloque 7: Posgrados e Investigación</span> 
+       <span class="block-subtitle">Aulas de Maestría y Auditorio Menor</span>
+      </div>
+      <span class="arrow-icon">▼</span>
+     </div>
+     <div class="block-details-content">
+      <div class="threat-box threat-volcano">🌋 <strong>Amenaza Volcánica:</strong> Sellar puertas y ventanas de los laboratorios de investigación para proteger equipos sensibles.</div>
+      <div class="plan-section-head">Rutas de Evacuación</div>
+      <ul class="plan-list">
+        <li>Salida de emergencia por la planta baja hacia la zona de parqueaderos docentes.</li>
+      </ul>
+      <div class="plan-section-head">Zona Segura de Encuentro</div>
+      <div class="threat-box threat-safe">🟢 <strong>Punto G:</strong> Área Verde Occidental del Campus.</div>
+     </div>
+    </div>
+
+    <!-- BLOQUE 8 -->
+    <div class="block-card-expandable" onclick="toggleBlock(this)">
+     <div class="block-header-clickable">
+      <div class="block-title-group">
+       <span class="block-title">🎭 Bloque 8: Auditorio General</span> 
+       <span class="block-subtitle">Eventos, Grados y Conferencias</span>
+      </div>
+      <span class="arrow-icon">▼</span>
+     </div>
+     <div class="block-details-content">
+      <div class="threat-box threat-seismic">🫨 <strong>Amenaza Sísmica:</strong> Mantener la calma ante aglomeraciones de personas. Guiarse por la señalética luminosa del suelo.</div>
+      <div class="plan-section-head">Rutas de Evacuación</div>
+      <ul class="plan-list">
+        <li>Utilizar equitativamente las 4 puertas de escape lateral.</li>
+      </ul>
+      <div class="plan-section-head">Zona Segura de Encuentro</div>
+      <div class="threat-box threat-safe">🟢 <strong>Punto H:</strong> Plaza Mayor frente al Auditorio.</div>
      </div>
     </div>
 
@@ -1246,7 +1303,7 @@
 
     function buildFilterCarrerasDropdown() {
       const select = document.getElementById('filter-carrera');
-      select.innerHTML = '<option value="">Todas las Carreras</option>' + carrerasList.map(c => `<option value="${c}">${c}</option>`).join('');
+      select.innerHTML = '<option value="">Buscar por Carrera...</option>' + carrerasList.map(c => `<option value="${c}">${c}</option>`).join('');
     }
 
     function buildTeacherCoursesList() {
@@ -1389,18 +1446,8 @@
       }
     });
 
-    function updateDirectoryUI() {
-        const optEstudiantes = document.getElementById('opt-filter-estudiantes');
-        if (userData && userData.rol === 'Estudiante') {
-            if(optEstudiantes) optEstudiantes.style.display = 'none';
-        } else {
-            if(optEstudiantes) optEstudiantes.style.display = 'block';
-        }
-    }
-
     function renderRegisteredState() {
       if(!userData) return;
-      updateDirectoryUI();
 
       const homeAvatar = document.getElementById('home-avatar-container');
       if (userData.foto) homeAvatar.innerHTML = `<img src="${userData.foto}" alt="Foto Perfil">`;
@@ -1488,7 +1535,9 @@
       const textQuery = document.getElementById('search-student').value.toLowerCase().trim();
       const carreraQuery = document.getElementById('filter-carrera').value;
       const cicloQuery = document.getElementById('filter-ciclo').value;
-      const rolQuery = document.getElementById('filter-rol').value;
+      
+      // La vista por defecto es cuando el usuario aún no ha escrito o seleccionado nada
+      const isDefaultView = (textQuery === "" && carreraQuery === "" && cicloQuery === "");
 
       // Ordenar: Administradores SIEMPRE de primeros
       let sortedList = [...studentsList].sort((a, b) => {
@@ -1498,19 +1547,30 @@
       });
 
       const filtered = sortedList.filter(s => {
-        // REGLA DE PRIVACIDAD: Si soy estudiante y el usuario es estudiante, ocultarlo
-        if (userData && userData.rol === 'Estudiante' && s.rol === 'Estudiante') {
-            return false;
+        // REGLA 1: Administradores se muestran SIEMPRE (Por defecto fijados)
+        if (s.rol === 'Administrador') {
+            if (isDefaultView) return true; 
+            const matchText = (s.nombre && s.nombre.toLowerCase().includes(textQuery)) || (s.cedula && s.cedula.includes(textQuery));
+            return matchText; // Si hay texto, filtramos por él, si no, se ven todos.
         }
 
+        // Si es vista por defecto, Ocultar a cualquier otro rol que no sea administrador
+        if (isDefaultView) return false;
+
+        // PRIVACIDAD: Los estudiantes no se pueden ver entre ellos en la red (o se ocultan totalmente a menos que alguien más los busque)
+        if (s.rol === 'Estudiante') {
+            return false; // Como el directorio solo es para personal / Ingenieros, los estudiantes se omiten
+        }
+
+        // REGLA 2: Ingenieros SOLO aparecen cuando se los busca por curso, carrera, o explícitamente por texto
         const matchText = (s.nombre && s.nombre.toLowerCase().includes(textQuery)) || (s.cedula && s.cedula.includes(textQuery));
         
         let matchCarrera = false;
         if (carreraQuery === "") {
-            matchCarrera = true;
+            matchCarrera = true; // Si no hay filtro de carrera, dejamos pasar (ej: busca solo por texto o ciclo)
         } else {
-            if (s.rol === 'Ingeniero' && s.cursosDocente && Array.isArray(s.cursosDocente)) {
-                matchCarrera = s.cursosDocente.some(curso => curso.includes(carreraQuery));
+            if (s.rol === 'Ingeniero') {
+                matchCarrera = s.cursosDocente && Array.isArray(s.cursosDocente) ? s.cursosDocente.some(curso => curso.includes(carreraQuery)) : false;
             } else {
                 matchCarrera = s.carrera === carreraQuery;
             }
@@ -1518,18 +1578,16 @@
 
         let matchCiclo = false;
         if (cicloQuery === "") {
-            matchCiclo = true;
+            matchCiclo = true; // Si no hay filtro de ciclo, dejamos pasar
         } else {
-             if (s.rol === 'Ingeniero' && s.cursosDocente && Array.isArray(s.cursosDocente)) {
-                matchCiclo = s.cursosDocente.some(curso => curso.includes(cicloQuery.split(' ')[0]));
-             } else {
+            if (s.rol === 'Ingeniero') {
+                matchCiclo = s.cursosDocente && Array.isArray(s.cursosDocente) ? s.cursosDocente.some(curso => curso.includes(cicloQuery.split(' ')[0])) : false;
+            } else {
                 matchCiclo = s.ciclo === cicloQuery;
-             }
+            }
         }
 
-        const matchRol = rolQuery === "" || s.rol === rolQuery;
-        
-        return matchText && matchCarrera && matchCiclo && matchRol;
+        return matchText && matchCarrera && matchCiclo;
       });
 
       renderStudentsList(filtered);
@@ -1537,7 +1595,14 @@
 
     function renderStudentsList(list) {
       const container = document.getElementById('students-container');
-      document.getElementById('students-count').innerText = `Mostrando ${list.length} perfiles en tu red`;
+      
+      const adminCount = list.filter(s => s.rol === 'Administrador').length;
+      const engineerCount = list.filter(s => s.rol === 'Ingeniero').length;
+      
+      let countText = `Mostrando ${adminCount} Administrador(es) fijados`;
+      if(engineerCount > 0) countText += ` y ${engineerCount} Docentes(s) encontrados`;
+      
+      document.getElementById('students-count').innerText = countText;
 
       if (list.length === 0) {
         container.innerHTML = `<div style="text-align: center; padding: 30px 10px; color: var(--text-secondary);"><p>☁️ <strong>Sin registros para esta búsqueda</strong></p></div>`;
@@ -1558,7 +1623,7 @@
           <img src="${student.foto || 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=300&q=80'}" alt="${student.nombre}">
           <div class="student-info">
             <h4>${student.nombre} <span class="status-dot">${statusDot}</span></h4>
-            <p>📚 ${student.carrera || 'N/A'}</p>
+            <p>📚 ${isAdmin ? 'Soporte General' : 'Docencia e Ingeniería'}</p>
             <span class="student-badge">${isAdmin ? '🛡️ Administrador' : roleLabel}</span>
           </div>
           <a class="call-btn-mini" href="tel:${cleanTel}" onclick="event.stopPropagation();">
@@ -1633,7 +1698,6 @@
     }
 
     function renderEmptyState() {
-      updateDirectoryUI();
       document.getElementById('form-mode').style.display = 'block';
       document.getElementById('view-mode').style.display = 'none';
       document.getElementById('admin-panel-section').style.display = 'none';
