@@ -356,6 +356,12 @@
     .detail-item.full-width {
       grid-column: span 2;
     }
+    
+    .detail-item.flex-between {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
 
     .detail-item label {
       font-size: 0.72rem;
@@ -611,6 +617,12 @@
       text-decoration: none;
     }
 
+    .call-btn-mini.copy-style {
+      background: rgba(14, 165, 233, 0.15);
+      color: var(--accent);
+      border-color: var(--accent);
+    }
+
     .modal-overlay {
       position: fixed;
       top: 0; left: 0; right: 0; bottom: 0;
@@ -705,27 +717,34 @@
     </div>
     <div class="welcome-box">
      <h2 id="home-welcome-title">¡Bienvenido, UTCino!</h2>
-     <p id="home-welcome-sub">Tu asistente integral de seguridad y respuesta inmediata ante emergencias institucionales.</p>
+     <!-- MODIFICACIÓN SOLICITADA 1: Cambio de subtítulo a instrucciones de acción -->
+     <p id="home-welcome-sub">Selecciona una de las siguientes opciones para actuar rápido en caso de emergencia.</p>
     </div>
     
     <div id="home-messages" style="padding: 0 16px; margin-bottom: 16px;"></div>
 
     <div class="quick-actions">
-     <div class="action-card-btn" onclick="switchTab('informacion', document.getElementById('nav-ficha'))">
-      <span>👤 MI FICHA MÉDICA / ESTADO</span> <span>➔</span>
+     <!-- MODIFICACIÓN SOLICITADA 2: Cambio de Ficha Médica a REGISTRO DE INFORMACIÓN, centrado -->
+     <div class="action-card-btn" style="justify-content: center;" onclick="switchTab('informacion', document.getElementById('nav-ficha'))">
+      <span>👤 REGISTRO DE INFORMACIÓN</span>
      </div>
-     <div class="action-card-btn" onclick="switchTab('protocolos', document.getElementById('nav-protocolos'))">
-      <span>🗺️ BLOQUES DEL CAMPUS &amp; RUTAS</span> <span>➔</span>
+     
+     <!-- MODIFICACIÓN SOLICITADA 3: Cambio de Bloques a PLAN DE CONTINGENCIA, centrado -->
+     <div class="action-card-btn" style="justify-content: center;" onclick="switchTab('protocolos', document.getElementById('nav-protocolos'))">
+      <span>🗺️ PLAN DE CONTINGENCIA</span>
      </div>
-     <a class="action-card-btn danger-btn" href="tel:911">
-      <span>🚨 LLAMAR AL ECU 911 (URGENCIA)</span> <span>📞</span>
+     
+     <!-- MODIFICACIÓN SOLICITADA 4: Solo ECU 911, centrado, sin íconos extras -->
+     <a class="action-card-btn danger-btn" style="justify-content: center; font-size: 1.1rem; font-weight: 900;" href="tel:911" onclick="copyNumberToClipboard('911', 'Número de ECU 911 (911) copiado al portapapeles. Puede pegarlo en su marcador.')">
+      <span>ECU 911</span>
      </a>
     </div>
    </div>
 
-   <!-- 2. FICHA MÉDICA / REGISTRO -->
+   <!-- 2. REGISTRO DE INFORMACIÓN -->
    <div id="tab-informacion" class="tab-content">
-    <div class="section-title">Registro / Ficha Médica</div>
+    <!-- MODIFICACIÓN DE TÍTULO -->
+    <div class="section-title">Registro de Información</div>
     <div class="section-subtitle">Identifícate para formar parte de la red del campus.</div>
     <div id="form-mode" class="form-card">
      <form id="medicalForm">
@@ -750,6 +769,12 @@
       <div class="form-group">
        <label>Cédula de Identidad</label> 
        <input type="text" id="input-cedula" class="form-control" maxlength="10" placeholder="10 dígitos" required>
+      </div>
+
+      <!-- MODIFICACIÓN SOLICITADA 5: Teléfono Personal consolidado para que todos puedan copiar -->
+      <div class="form-group">
+       <label>📱 Teléfono Personal (Celular)</label> 
+       <input type="tel" id="input-tel-personal" class="form-control" placeholder="Tu número, Ej. 0987654321" required>
       </div>
       
       <div class="form-group">
@@ -826,7 +851,7 @@
        <input type="text" id="input-contacto-nom" class="form-control" placeholder="Nombre (Ej. Mamá)" required>
       </div>
       <div class="form-group">
-       <label>Teléfono de Contacto</label> 
+       <label>Teléfono de Contacto Ext.</label> 
        <input type="tel" id="input-contacto-tel" class="form-control" placeholder="Ej. 0991234567" required>
       </div>
       <button type="submit" class="btn-submit">💾 Guardar / Entrar</button>
@@ -855,8 +880,14 @@
       <div class="detail-item full-width" id="view-cursos-container">
        <label id="view-cursos-label">Asignación</label><span id="view-ciclo">--</span>
       </div>
+      
+      <!-- Teléfono Personal del Usuario -->
       <div class="detail-item full-width">
-       <label>Contacto Emergencia</label><span id="view-contacto">--</span>
+       <label>Mi Teléfono Personal</label><span id="view-tel-personal">--</span>
+      </div>
+
+      <div class="detail-item full-width">
+       <label>Contacto de Emergencia</label><span id="view-contacto">--</span>
       </div>
       <div class="detail-item full-width" id="view-croquis-box" style="display:none; text-align:center;">
        <label>Croquis / Ubicación</label>
@@ -874,10 +905,6 @@
     <div class="filter-box">
      <input type="text" id="search-student" class="form-control" placeholder="🔍 Buscar nombre o cédula..." oninput="filterStudents()">
      
-     <select id="filter-rol" class="form-control" onchange="filterStudents()" style="margin-bottom: 8px; display: none;">
-        <!-- El rol ya no se usa como filtro manual para no confundir. Se filtra por curso/carrera. -->
-     </select>
-
      <div style="display: flex; gap: 8px;">
       <select id="filter-carrera" class="form-control" onchange="filterStudents()"> 
        <option value="">Buscar por Carrera...</option> 
@@ -920,24 +947,39 @@
        <label>Sangre</label><span id="modal-student-sangre" style="color: #ef4444; font-weight: 800;">--</span>
       </div>
 
-      <div class="detail-item full-width">
-       <label>Contacto Emergencia</label><span id="modal-student-contact">--</span>
+      <!-- APARTADO SOLICITADO: Teléfono Personal con botón Copiar en Modal -->
+      <div class="detail-item full-width flex-between">
+       <div>
+         <label>Teléfono Personal</label>
+         <span id="modal-student-tel-personal">--</span>
+       </div>
+       <button id="modal-btn-copy-personal" class="call-btn-mini copy-style" onclick="">📋 Copiar</button>
       </div>
+
+      <div class="detail-item full-width flex-between">
+       <div>
+         <label>Contacto Emergencia</label>
+         <span id="modal-student-contact">--</span>
+       </div>
+       <button id="modal-btn-copy-emergencia" class="call-btn-mini copy-style" onclick="">📋 Copiar</button>
+      </div>
+
       <div class="detail-item full-width" id="modal-student-croquis-container" style="display:none; text-align:center;">
        <label>Croquis de Ubicación</label>
        <img id="modal-student-croquis" src="" style="width:100%; max-height:180px; object-fit:cover; border-radius:8px; margin-top:6px;" alt="Croquis">
       </div>
      </div>
      <div style="display: flex; flex-direction: column; gap: 10px; margin-top: 16px;">
-        <a id="modal-btn-call" class="btn-submit btn-call-emergency" href="#">📞 LLAMAR CONTACTO</a>
-        <button id="modal-btn-message" class="btn-submit btn-message" onclick="sendOfficialMessage()" style="display:none;">✉️ ENVIAR MENSAJE</button>
+        <a id="modal-btn-call" class="btn-submit btn-call-emergency" href="#" onclick="alertIfDirectCallFails(this.href)">📞 LLAMAR</a>
+        <button id="modal-btn-message" class="btn-submit btn-message" onclick="sendOfficialMessage()" style="display:none;">✉️ MENSAJE</button>
      </div>
     </div>
    </div>
 
-   <!-- 4. CONTENIDO DE PLAN DE BLOQUES (8 BLOQUES) -->
+   <!-- 4. PLAN DE CONTINGENCIA -->
    <div id="tab-protocolos" class="tab-content">
-    <div class="section-title">Contenido de Plan</div>
+    <!-- MODIFICACIÓN DE TÍTULO -->
+    <div class="section-title">Plan de Contingencia</div>
     <div class="section-subtitle">Toca cada bloque para desplegar el Plan de Reconocimiento.</div>
 
     <!-- BLOQUE 1 -->
@@ -1181,6 +1223,58 @@
       initFirebaseSync();
     });
 
+    // FUNCIONALIDAD: Portapapeles (Copiar y Pegar números)
+    function copyNumberToClipboard(numero, mensajeExito) {
+        if(!numero || numero.trim() === "") {
+            alert("⚠️ No hay número registrado para copiar.");
+            return;
+        }
+        
+        // Limpiamos el número de caracteres raros (opcional, dejamos el + si tiene)
+        const numLimpio = String(numero).replace(/[^0-9+]/g, '');
+
+        if(navigator.clipboard && navigator.clipboard.writeText) {
+            navigator.clipboard.writeText(numLimpio).then(() => {
+                alert(mensajeExito || `✅ Número copiado al portapapeles: ${numLimpio}\n¡Puede pegarlo en su aplicación de llamadas!`);
+            }).catch(err => {
+                fallbackCopyTextToClipboard(numLimpio, mensajeExito);
+            });
+        } else {
+            fallbackCopyTextToClipboard(numLimpio, mensajeExito);
+        }
+    }
+
+    function fallbackCopyTextToClipboard(text, mensajeExito) {
+        var textArea = document.createElement("textarea");
+        textArea.value = text;
+        
+        // Previene scroll al final en algunos navegadores
+        textArea.style.top = "0";
+        textArea.style.left = "0";
+        textArea.style.position = "fixed";
+
+        document.body.appendChild(textArea);
+        textArea.focus();
+        textArea.select();
+
+        try {
+            var successful = document.execCommand('copy');
+            if(successful) {
+                alert(mensajeExito || `✅ Número copiado: ${text}\n¡Vaya a la aplicación de su teléfono para pegarlo!`);
+            } else {
+                alert("❌ No se pudo copiar el número. Selecciónelo manualmente: " + text);
+            }
+        } catch (err) {
+            alert("❌ Su navegador no soporta el copiado. Número: " + text);
+        }
+        document.body.removeChild(textArea);
+    }
+
+    // Alerta opcional si la llamada directa no funciona
+    function alertIfDirectCallFails(href) {
+        console.log("Intentando llamar a:", href);
+    }
+
     async function setOnlineStatus(status) {
       if (!userData || !userData.cedula) return;
       const user = studentsList.find(s => s.cedula === userData.cedula);
@@ -1387,6 +1481,7 @@
           rol: rolSeleccionado,
           nombre: document.getElementById('input-nombre').value,
           cedula: document.getElementById('input-cedula').value,
+          telPersonal: document.getElementById('input-tel-personal').value, // Teléfono Personal
           genero: generoValor,
           tipoSangre: sangreValor,
           foto: fotoBase64 || "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=300&q=80",
@@ -1453,7 +1548,9 @@
       if (userData.foto) homeAvatar.innerHTML = `<img src="${userData.foto}" alt="Foto Perfil">`;
       
       document.getElementById('home-welcome-title').innerText = `¡Bienvenido, ${userData.nombre.split(' ')[0]}!`;
-      document.getElementById('home-welcome-sub').innerText = `Rol: ${userData.rol} | Estado: Conectado a la Red`;
+      
+      // Mantenemos el texto modificado aunque se inicie sesión
+      document.getElementById('home-welcome-sub').innerText = 'Selecciona una de las siguientes opciones para actuar rápido en caso de emergencia.';
 
       document.getElementById('form-mode').style.display = 'none';
       document.getElementById('view-mode').style.display = 'block';
@@ -1463,6 +1560,10 @@
       document.getElementById('view-carrera-text').innerText = userData.carrera;
       document.getElementById('view-rol').innerText = userData.rol;
       document.getElementById('view-cedula').innerText = userData.cedula;
+      
+      // Mostrar Teléfono Personal
+      document.getElementById('view-tel-personal').innerText = userData.telPersonal || "No registrado";
+      
       document.getElementById('view-genero').innerText = userData.genero || 'No definido';
       document.getElementById('view-sangre').innerText = userData.tipoSangre || 'No definido';
 
@@ -1509,6 +1610,7 @@
         toggleRoleFields(userData.rol);
         document.getElementById('input-nombre').value = userData.nombre;
         document.getElementById('input-cedula').value = userData.cedula;
+        document.getElementById('input-tel-personal').value = userData.telPersonal || ""; // Cargar Teléfono Personal
         document.getElementById('input-contacto-nom').value = userData.contactoNom;
         document.getElementById('input-contacto-tel').value = userData.contactoTel;
         
@@ -1536,10 +1638,8 @@
       const carreraQuery = document.getElementById('filter-carrera').value;
       const cicloQuery = document.getElementById('filter-ciclo').value;
       
-      // La vista por defecto es cuando el usuario aún no ha escrito o seleccionado nada
       const isDefaultView = (textQuery === "" && carreraQuery === "" && cicloQuery === "");
 
-      // Ordenar: Administradores SIEMPRE de primeros
       let sortedList = [...studentsList].sort((a, b) => {
           if (a.rol === 'Administrador' && b.rol !== 'Administrador') return -1;
           if (b.rol === 'Administrador' && a.rol !== 'Administrador') return 1;
@@ -1547,27 +1647,21 @@
       });
 
       const filtered = sortedList.filter(s => {
-        // REGLA 1: Administradores se muestran SIEMPRE (Por defecto fijados)
         if (s.rol === 'Administrador') {
             if (isDefaultView) return true; 
             const matchText = (s.nombre && s.nombre.toLowerCase().includes(textQuery)) || (s.cedula && s.cedula.includes(textQuery));
-            return matchText; // Si hay texto, filtramos por él, si no, se ven todos.
+            return matchText;
         }
 
-        // Si es vista por defecto, Ocultar a cualquier otro rol que no sea administrador
         if (isDefaultView) return false;
 
-        // PRIVACIDAD: Los estudiantes no se pueden ver entre ellos en la red (o se ocultan totalmente a menos que alguien más los busque)
-        if (s.rol === 'Estudiante') {
-            return false; // Como el directorio solo es para personal / Ingenieros, los estudiantes se omiten
-        }
+        if (s.rol === 'Estudiante') return false;
 
-        // REGLA 2: Ingenieros SOLO aparecen cuando se los busca por curso, carrera, o explícitamente por texto
         const matchText = (s.nombre && s.nombre.toLowerCase().includes(textQuery)) || (s.cedula && s.cedula.includes(textQuery));
         
         let matchCarrera = false;
         if (carreraQuery === "") {
-            matchCarrera = true; // Si no hay filtro de carrera, dejamos pasar (ej: busca solo por texto o ciclo)
+            matchCarrera = true;
         } else {
             if (s.rol === 'Ingeniero') {
                 matchCarrera = s.cursosDocente && Array.isArray(s.cursosDocente) ? s.cursosDocente.some(curso => curso.includes(carreraQuery)) : false;
@@ -1578,7 +1672,7 @@
 
         let matchCiclo = false;
         if (cicloQuery === "") {
-            matchCiclo = true; // Si no hay filtro de ciclo, dejamos pasar
+            matchCiclo = true;
         } else {
             if (s.rol === 'Ingeniero') {
                 matchCiclo = s.cursosDocente && Array.isArray(s.cursosDocente) ? s.cursosDocente.some(curso => curso.includes(cicloQuery.split(' ')[0])) : false;
@@ -1611,9 +1705,12 @@
 
       container.innerHTML = list.map((student) => {
         const realIndex = studentsList.findIndex(s => s.cedula === student.cedula);
-        const cleanTel = student.contactoTel ? String(student.contactoTel).replace(/[^0-9+]/g, '') : '';
-        const statusDot = student.isOnline ? '🟢 En Línea' : '🔴 Offline';
         
+        // Determinar qué número usar para la mini tarjeta (preferimos personal si existe)
+        const numToUse = student.telPersonal || student.contactoTel || "";
+        const cleanTel = numToUse ? String(numToUse).replace(/[^0-9+]/g, '') : '';
+        
+        const statusDot = student.isOnline ? '🟢 En Línea' : '🔴 Offline';
         const isAdmin = student.rol === 'Administrador';
         const cardClass = isAdmin ? "student-card admin-card-style" : "student-card";
         const roleLabel = student.rol || 'Estudiante';
@@ -1626,9 +1723,9 @@
             <p>📚 ${isAdmin ? 'Soporte General' : 'Docencia e Ingeniería'}</p>
             <span class="student-badge">${isAdmin ? '🛡️ Administrador' : roleLabel}</span>
           </div>
-          <a class="call-btn-mini" href="tel:${cleanTel}" onclick="event.stopPropagation();">
-            📞
-          </a>
+          <button class="call-btn-mini" onclick="event.stopPropagation(); copyNumberToClipboard('${cleanTel}', 'Número copiado al portapapeles: ${cleanTel}')">
+            📋 Copiar
+          </button>
         </div>
       `}).join('');
     }
@@ -1637,8 +1734,6 @@
       const targetUser = studentsList[index];
       if(!targetUser) return;
       currentModalStudentIndex = index;
-
-      const cleanTel = targetUser.contactoTel ? String(targetUser.contactoTel).replace(/[^0-9+]/g, '') : '';
 
       document.getElementById('modal-student-img').src = targetUser.foto || "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=300&q=80";
       document.getElementById('modal-student-name').innerText = targetUser.nombre;
@@ -1650,8 +1745,22 @@
 
       document.getElementById('modal-student-genero').innerText = targetUser.genero || "No definido";
       document.getElementById('modal-student-sangre').innerText = targetUser.tipoSangre || "No definido";
-      document.getElementById('modal-student-contact').innerText = `${targetUser.contactoNom} (${targetUser.contactoTel})`;
       
+      // Mostrar y configurar Botón de Copiar para Teléfono Personal
+      const telPersonal = targetUser.telPersonal || "No registrado";
+      document.getElementById('modal-student-tel-personal').innerText = telPersonal;
+      document.getElementById('modal-btn-copy-personal').onclick = () => {
+         if(telPersonal !== "No registrado") copyNumberToClipboard(telPersonal, `Teléfono Personal de ${targetUser.nombre} copiado.`);
+      };
+
+      // Mostrar y configurar Botón de Copiar para Contacto de Emergencia
+      const contEmergencia = `${targetUser.contactoNom} (${targetUser.contactoTel})`;
+      document.getElementById('modal-student-contact').innerText = contEmergencia;
+      document.getElementById('modal-btn-copy-emergencia').onclick = () => {
+         if(targetUser.contactoTel) copyNumberToClipboard(targetUser.contactoTel, `Contacto de Emergencia de ${targetUser.nombre} copiado.`);
+      };
+      
+      const cleanTel = targetUser.contactoTel ? String(targetUser.contactoTel).replace(/[^0-9+]/g, '') : '';
       document.getElementById('modal-btn-call').href = `tel:${cleanTel}`;
 
       if(targetUser.croquis) {
@@ -1667,15 +1776,15 @@
       if (userData) {
           if (userData.rol === 'Administrador' || userData.rol === 'Ingeniero') {
               msgBtn.style.display = 'inline-block';
-              msgBtn.innerText = '✉️ ENVIAR MENSAJE OFICIAL';
+              msgBtn.innerText = '✉️ MENSAJE';
               msgBtn.className = "btn-submit btn-message";
           } else if (userData.rol === 'Estudiante' && targetUser.rol === 'Ingeniero') {
               msgBtn.style.display = 'inline-block';
-              msgBtn.innerText = '✉️ ENVIAR MENSAJE AL MAESTRO';
+              msgBtn.innerText = '✉️ MENSAJE';
               msgBtn.className = "btn-submit btn-message";
           } else if (userData.rol === 'Estudiante' && targetUser.rol === 'Administrador') {
               msgBtn.style.display = 'inline-block';
-              msgBtn.innerText = '⚠️ REPORTAR FALLA AL ADMIN';
+              msgBtn.innerText = '⚠️ REPORTAR FALLA';
               msgBtn.className = "btn-submit btn-call-emergency";
           }
       }
@@ -1703,6 +1812,8 @@
       document.getElementById('admin-panel-section').style.display = 'none';
       document.getElementById('home-avatar-container').innerHTML = `<span>UTC</span>`;
       document.getElementById('home-welcome-title').innerText = `¡Bienvenido, UTCino!`;
+      // Texto inicial de bienvenida
+      document.getElementById('home-welcome-sub').innerText = 'Selecciona una de las siguientes opciones para actuar rápido en caso de emergencia.';
     }
 
     function resetAllAppStorage() {
