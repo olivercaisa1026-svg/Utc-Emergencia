@@ -626,7 +626,7 @@
       text-decoration: none;
     }
 
-    .call-btn-mini.call-style {
+    .call-btn-mini.copy-style {
       background: rgba(14, 165, 233, 0.15);
       color: var(--accent);
       border-color: var(--accent);
@@ -740,9 +740,8 @@
       <span>🗺️ PLAN DE CONTINGENCIA</span>
      </div>
      
-     <!-- MODIFICADO: LLAMADA DIRECTA AL 911 SIN ALERTAS -->
-     <a class="action-card-btn danger-btn" style="justify-content: center; font-size: 1.1rem; font-weight: 900;" href="tel:911">
-      <span>🚨 ECU 911</span>
+     <a class="action-card-btn danger-btn" style="justify-content: center; font-size: 1.1rem; font-weight: 900;" href="tel:911" onclick="copyNumberToClipboard('911', 'Número de ECU 911 (911) copiado al portapapeles. Puede pegarlo en su marcador.')">
+      <span>ECU 911</span>
      </a>
     </div>
    </div>
@@ -1009,13 +1008,12 @@
        <label>Discapacidad</label><span id="modal-student-discapacidad">--</span>
       </div>
 
-      <!-- MODIFICADO: BOTONES PARA LLAMADA DIRECTA EN EL MODAL -->
       <div class="detail-item full-width flex-between">
        <div>
          <label>Teléfono Personal</label>
          <span id="modal-student-tel-personal">--</span>
        </div>
-       <a id="modal-btn-call-personal" class="call-btn-mini call-style" href="#">📞 Llamar</a>
+       <button id="modal-btn-copy-personal" class="call-btn-mini copy-style" onclick="">📋 Copiar</button>
       </div>
 
       <div class="detail-item full-width flex-between">
@@ -1023,7 +1021,7 @@
          <label>Contacto Emergencia</label>
          <span id="modal-student-contact">--</span>
        </div>
-       <a id="modal-btn-call-emergencia" class="call-btn-mini call-style" href="#">📞 Llamar</a>
+       <button id="modal-btn-copy-emergencia" class="call-btn-mini copy-style" onclick="">📋 Copiar</button>
       </div>
 
       <div class="detail-item full-width" id="modal-student-croquis-container" style="display:none; text-align:center;">
@@ -1032,7 +1030,7 @@
       </div>
      </div>
      <div style="display: flex; flex-direction: column; gap: 10px; margin-top: 16px;">
-        <a id="modal-btn-call" class="btn-submit btn-call-emergency" href="#">📞 LLAMAR DIRECTO</a>
+        <a id="modal-btn-call" class="btn-submit btn-call-emergency" href="#" onclick="alertIfDirectCallFails(this.href)">📞 LLAMAR</a>
         <button id="modal-btn-message" class="btn-submit btn-message" onclick="sendOfficialMessage()" style="display:none;">✉️ MENSAJE</button>
      </div>
     </div>
@@ -1191,7 +1189,7 @@
      </div>
     </div>
 
-    <!-- SECCIÓN 9 -->
+    <!-- NUEVO: SECCIÓN 9 -->
     <div class="block-card-expandable" onclick="toggleBlock(this)">
      <div class="block-header-clickable">
       <div class="block-title-group">
@@ -1211,7 +1209,7 @@
      </div>
     </div>
 
-    <!-- SECCIÓN 10 -->
+    <!-- NUEVO: SECCIÓN 10 -->
     <div class="block-card-expandable" onclick="toggleBlock(this)">
      <div class="block-header-clickable">
       <div class="block-title-group">
@@ -1289,7 +1287,7 @@
     let fotoBase64 = userData ? userData.foto : "";
     let croquisBase64 = userData ? userData.croquis : "";
     let currentModalStudentIndex = -1;
-    let currentDirMode = 'general';
+    let currentDirMode = 'general'; // Estado actual del directorio: 'general' o 'admin'
 
     document.addEventListener('DOMContentLoaded', () => {
       document.getElementById('admin-teacher-key-input').value = currentTeacherKey;
@@ -1347,6 +1345,51 @@
         inputCual.required = false;
         inputCual.value = '';
       }
+    }
+
+    function copyNumberToClipboard(numero, mensajeExito) {
+        if(!numero || numero.trim() === "") {
+            alert("⚠️ No hay número registrado para copiar.");
+            return;
+        }
+        const numLimpio = String(numero).replace(/[^0-9+]/g, '');
+
+        if(navigator.clipboard && navigator.clipboard.writeText) {
+            navigator.clipboard.writeText(numLimpio).then(() => {
+                alert(mensajeExito || `✅ Número copiado al portapapeles: ${numLimpio}\n¡Puede pegarlo en su aplicación de llamadas!`);
+            }).catch(err => {
+                fallbackCopyTextToClipboard(numLimpio, mensajeExito);
+            });
+        } else {
+            fallbackCopyTextToClipboard(numLimpio, mensajeExito);
+        }
+    }
+
+    function fallbackCopyTextToClipboard(text, mensajeExito) {
+        var textArea = document.createElement("textarea");
+        textArea.value = text;
+        textArea.style.top = "0";
+        textArea.style.left = "0";
+        textArea.style.position = "fixed";
+        document.body.appendChild(textArea);
+        textArea.focus();
+        textArea.select();
+
+        try {
+            var successful = document.execCommand('copy');
+            if(successful) {
+                alert(mensajeExito || `✅ Número copiado: ${text}\n¡Vaya a la aplicación de su teléfono para pegarlo!`);
+            } else {
+                alert("❌ No se pudo copiar el número. Selecciónelo manualmente: " + text);
+            }
+        } catch (err) {
+            alert("❌ Su navegador no soporta el copiado. Número: " + text);
+        }
+        document.body.removeChild(textArea);
+    }
+
+    function alertIfDirectCallFails(href) {
+        console.log("Intentando llamar a:", href);
     }
 
     async function setOnlineStatus(status) {
@@ -1848,10 +1891,9 @@
             <p>📚 ${rolDesc}</p>
             <span class="student-badge">${roleLabel}</span>
           </div>
-          <!-- MODIFICADO: BOTÓN LLAMAR DIRECTO EN LUGAR DE COPIAR -->
-          <a class="call-btn-mini" href="tel:${cleanTel}" onclick="event.stopPropagation();">
-            📞 Llamar
-          </a>
+          <button class="call-btn-mini" onclick="event.stopPropagation(); copyNumberToClipboard('${cleanTel}', 'Número copiado al portapapeles: ${cleanTel}')">
+            📋 Copiar
+          </button>
         </div>
       `}).join('');
     }
@@ -1873,41 +1915,20 @@
       document.getElementById('modal-student-medicina').innerText = targetUser.medicina || "No";
       document.getElementById('modal-student-discapacidad').innerText = targetUser.discapacidad || "No";
       
-      // CONFIGURACIÓN DE LLAMADA PERSONAL
-      const telPersonal = targetUser.telPersonal || "";
-      const cleanTelPersonal = telPersonal ? String(telPersonal).replace(/[^0-9+]/g, '') : '';
-      document.getElementById('modal-student-tel-personal').innerText = targetUser.telPersonal || "No registrado";
-      
-      const btnPersonalCall = document.getElementById('modal-btn-call-personal');
-      if (cleanTelPersonal) {
-          btnPersonalCall.href = `tel:${cleanTelPersonal}`;
-          btnPersonalCall.style.display = 'inline-flex';
-      } else {
-          btnPersonalCall.style.display = 'none';
-      }
+      const telPersonal = targetUser.telPersonal || "No registrado";
+      document.getElementById('modal-student-tel-personal').innerText = telPersonal;
+      document.getElementById('modal-btn-copy-personal').onclick = () => {
+         if(telPersonal !== "No registrado") copyNumberToClipboard(telPersonal, `Teléfono Personal de ${targetUser.nombre} copiado.`);
+      };
 
-      // CONFIGURACIÓN DE LLAMADA CONTACTO DE EMERGENCIA
-      const contEmergenciaTel = targetUser.contactoTel || "";
-      const cleanTelEmergencia = contEmergenciaTel ? String(contEmergenciaTel).replace(/[^0-9+]/g, '') : '';
-      document.getElementById('modal-student-contact').innerText = `${targetUser.contactoNom || ''} (${targetUser.contactoTel || 'No registrado'})`;
+      const contEmergencia = `${targetUser.contactoNom} (${targetUser.contactoTel})`;
+      document.getElementById('modal-student-contact').innerText = contEmergencia;
+      document.getElementById('modal-btn-copy-emergencia').onclick = () => {
+         if(targetUser.contactoTel) copyNumberToClipboard(targetUser.contactoTel, `Contacto de Emergencia de ${targetUser.nombre} copiado.`);
+      };
       
-      const btnEmergenciaCall = document.getElementById('modal-btn-call-emergencia');
-      if (cleanTelEmergencia) {
-          btnEmergenciaCall.href = `tel:${cleanTelEmergencia}`;
-          btnEmergenciaCall.style.display = 'inline-flex';
-      } else {
-          btnEmergenciaCall.style.display = 'none';
-      }
-      
-      // BOTÓN PRINCIPAL DE LLAMADA
-      const mainTel = cleanTelPersonal || cleanTelEmergencia || '';
-      const mainCallBtn = document.getElementById('modal-btn-call');
-      if (mainTel) {
-          mainCallBtn.href = `tel:${mainTel}`;
-          mainCallBtn.style.display = 'inline-block';
-      } else {
-          mainCallBtn.style.display = 'none';
-      }
+      const cleanTel = targetUser.contactoTel ? String(targetUser.contactoTel).replace(/[^0-9+]/g, '') : '';
+      document.getElementById('modal-btn-call').href = `tel:${cleanTel}`;
 
       if(targetUser.croquis) {
         document.getElementById('modal-student-croquis-container').style.display = 'block';
