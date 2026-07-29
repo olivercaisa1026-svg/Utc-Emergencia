@@ -1275,7 +1275,7 @@
     ];
 
     let studentsList = []; 
-    let currentlyFilteredStudents = []; // Guardará el filtro activo para el PDF
+    let currentlyFilteredStudents = []; 
     let userData = JSON.parse(localStorage.getItem('utc_user_data')) || null;
     let fotoBase64 = userData ? userData.foto : "";
     let croquisBase64 = userData ? userData.croquis : "";
@@ -1296,7 +1296,6 @@
       initFirebaseSync();
     });
 
-    // Función para manejar el campo "¿Cuál?" en salud
     function toggleHealthField(tipo) {
       const resp = document.getElementById(`input-${tipo}-sn`).value;
       const inputCual = document.getElementById(`input-${tipo}-cual`);
@@ -1310,7 +1309,6 @@
       }
     }
 
-    // Funcionalidad Portapapeles
     function copyNumberToClipboard(numero, mensajeExito) {
         if(!numero || numero.trim() === "") {
             alert("⚠️ No hay número registrado para copiar.");
@@ -1626,7 +1624,6 @@
       } catch (err) {
         console.error("Error: ", err);
         alert('⚠️ Funcionando sin Internet. Información guardada localmente.');
-        // Even if failed offline, Firestore saves it in IndexedDB and syncs when online.
         localStorage.setItem('utc_user_data', JSON.stringify(userData));
         renderRegisteredState();
       }
@@ -1653,7 +1650,6 @@
       document.getElementById('view-genero').innerText = userData.genero || 'No definido';
       document.getElementById('view-sangre').innerText = userData.tipoSangre || 'No definido';
 
-      // Llenar vista de salud
       document.getElementById('view-alergia').innerText = userData.alergia || 'No';
       document.getElementById('view-medicina').innerText = userData.medicina || 'No';
       document.getElementById('view-discapacidad').innerText = userData.discapacidad || 'No';
@@ -1755,6 +1751,7 @@
       }
     }
 
+    // MODIFICADO: Función de filtro para excluir a los administradores
     function filterStudents() {
       const textQuery = document.getElementById('search-student').value.toLowerCase().trim();
       const carreraQuery = document.getElementById('filter-carrera').value;
@@ -1769,12 +1766,10 @@
       });
 
       const filtered = sortedList.filter(s => {
+        // CORRECCIÓN 1: Excluir por completo a los administradores de la lista
+        if (s.rol === 'Administrador') return false; 
+        
         if (miRol === 'Estudiante' && s.rol === 'Estudiante') return false; 
-        if (s.rol === 'Administrador') {
-            if (isDefaultView) return true; 
-            const matchText = (s.nombre && s.nombre.toLowerCase().includes(textQuery)) || (s.cedula && s.cedula.includes(textQuery));
-            return matchText;
-        }
 
         if (isDefaultView) return false;
 
@@ -1802,13 +1797,15 @@
 
     function renderStudentsList(list) {
       const container = document.getElementById('students-container');
-      const adminCount = list.filter(s => s.rol === 'Administrador').length;
       const engineerCount = list.filter(s => s.rol === 'Ingeniero').length;
       const studentCount = list.filter(s => s.rol === 'Estudiante').length;
       
-      let countText = `Mostrando ${adminCount} Administrador(es)`;
-      if(engineerCount > 0) countText += `, ${engineerCount} Docente(s)`;
-      if(studentCount > 0) countText += `, y ${studentCount} Estudiante(s)`;
+      let countText = `Resultados de la búsqueda:`;
+      if(engineerCount > 0) countText += ` ${engineerCount} Docente(s)`;
+      if(studentCount > 0) countText += ` y ${studentCount} Estudiante(s)`;
+      
+      if(engineerCount === 0 && studentCount === 0) countText = "";
+      
       document.getElementById('students-count').innerText = countText;
 
       if (list.length === 0) {
@@ -1821,18 +1818,16 @@
         const numToUse = student.telPersonal || student.contactoTel || "";
         const cleanTel = numToUse ? String(numToUse).replace(/[^0-9+]/g, '') : '';
         const statusDot = student.isOnline ? '🟢 En Línea' : '🔴 Offline';
-        const isAdmin = student.rol === 'Administrador';
-        const cardClass = isAdmin ? "student-card admin-card-style" : "student-card";
         const roleLabel = student.rol || 'Estudiante';
-        const rolDesc = isAdmin ? 'Soporte General' : (student.rol === 'Ingeniero' ? 'Docencia e Ingeniería' : 'Estudiante Matriculado');
+        const rolDesc = (student.rol === 'Ingeniero' ? 'Docencia e Ingeniería' : 'Estudiante Matriculado');
         
         return `
-        <div class="${cardClass}" onclick="openStudentModal(${realIndex})">
+        <div class="student-card" onclick="openStudentModal(${realIndex})">
           <img src="${student.foto || 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=300&q=80'}" alt="${student.nombre}">
           <div class="student-info">
             <h4>${student.nombre} <span class="status-dot">${statusDot}</span></h4>
             <p>📚 ${rolDesc}</p>
-            <span class="student-badge">${isAdmin ? '🛡️ Administrador' : roleLabel}</span>
+            <span class="student-badge">${roleLabel}</span>
           </div>
           <button class="call-btn-mini" onclick="event.stopPropagation(); copyNumberToClipboard('${cleanTel}', 'Número copiado al portapapeles: ${cleanTel}')">
             📋 Copiar
@@ -1907,11 +1902,10 @@
       currentModalStudentIndex = -1;
     }
 
-    // DESCARGA PDF - MODIFICADA SEGÚN LA SOLICITUD
+    // MODIFICADO: Generación de PDF con Nombre de Docente, Curso y Total
     function downloadCoursePDF() {
       const cicloQuery = document.getElementById('filter-ciclo').value;
       
-      // OBLIGAMOS a que el usuario seleccione un Semestre específico
       if (!cicloQuery) {
           alert("⚠️ Por favor, selecciona un Semestre/Ciclo específico en los filtros antes de descargar el PDF.");
           return;
@@ -1920,7 +1914,6 @@
       const { jsPDF } = window.jspdf;
       const doc = new jsPDF();
       
-      // Filtramos la lista para que SOLO sean estudiantes Y que coincidan exactamente con el ciclo seleccionado
       const studentsToPrint = currentlyFilteredStudents.filter(s => s.rol === 'Estudiante' && s.ciclo === cicloQuery);
       
       if(studentsToPrint.length === 0) {
@@ -1933,7 +1926,14 @@
       doc.setFontSize(16);
       doc.text("Plan de Contingencia UTCino", 14, 15);
       doc.setFontSize(10);
-      doc.text(`Reporte de Estudiantes: ${cicloQuery} - ${carreraQuery}`, 14, 22);
+      
+      // CORRECCIÓN 2: Obtener los datos solicitados para el PDF
+      const nombreDocente = userData ? userData.nombre : "Docente / Usuario No Definido";
+      const totalEstudiantes = studentsToPrint.length;
+      
+      doc.text(`Curso: ${cicloQuery} - ${carreraQuery}`, 14, 22);
+      doc.text(`Docente a cargo de reporte: ${nombreDocente}`, 14, 28);
+      doc.text(`Total de Estudiantes: ${totalEstudiantes}`, 14, 34);
       
       const tableData = studentsToPrint.map((s, index) => [
           index + 1,
@@ -1945,7 +1945,7 @@
       ]);
       
       doc.autoTable({
-          startY: 28,
+          startY: 40, // Se baja un poco la tabla para no tapar los datos nuevos
           head: [['#', 'Nombre Completo', 'Cédula', 'Sangre', 'Tel. Personal', 'Tel. Emergencia']],
           body: tableData,
           styles: { fontSize: 8 },
