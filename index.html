@@ -804,7 +804,6 @@
        </select>
       </div>
 
-      <!-- NUEVOS CAMPOS DE SALUD -->
       <div class="form-group">
        <label>¿Tiene alguna alergia?</label>
        <select id="input-alergia-sn" class="form-control" onchange="toggleHealthField('alergia')">
@@ -831,7 +830,6 @@
        </select>
        <input type="text" id="input-discapacidad-cual" class="form-control" placeholder="¿Cuál?" style="display:none; margin-top:8px;">
       </div>
-      <!-- FIN NUEVOS CAMPOS DE SALUD -->
 
       <div id="student-fields">
        <div class="form-group">
@@ -909,7 +907,6 @@
        <label>Sangre</label><span id="view-sangre" style="color: #ef4444; font-weight: 800;">--</span>
       </div>
 
-      <!-- VISTA NUEVOS CAMPOS DE SALUD -->
       <div class="detail-item full-width">
        <label>Alergias</label><span id="view-alergia">--</span>
       </div>
@@ -919,7 +916,6 @@
       <div class="detail-item full-width">
        <label>Discapacidad</label><span id="view-discapacidad">--</span>
       </div>
-      <!-- FIN VISTA SALUD -->
 
       <div class="detail-item full-width" id="view-cursos-container">
        <label id="view-cursos-label">Asignación</label><span id="view-ciclo">--</span>
@@ -995,7 +991,6 @@
        <label>Sangre</label><span id="modal-student-sangre" style="color: #ef4444; font-weight: 800;">--</span>
       </div>
       
-      <!-- MODAL CAMPOS DE SALUD -->
       <div class="detail-item full-width">
        <label>Alergias</label><span id="modal-student-alergia">--</span>
       </div>
@@ -1184,6 +1179,45 @@
       <div class="threat-box threat-hydro">📍 <strong>Llegada Obligatoria:</strong> Dirígete sin excepciones al punto de encuentro asignado para la Facultad de Ingeniería.</div>
       <div class="threat-box threat-safe">✅ <strong>El Conteo Salva Vidas:</strong> ¿Por qué es obligatorio? Porque si no estás en el punto de encuentro, los bomberos o rescatistas arriesgarán sus vidas entrando al edificio a buscarte pensando que te quedaste atrapado.</div>
       <div class="threat-box threat-volcano">🚫 <strong>No te vayas a casa:</strong> No abandones el campus ni tomes tu vehículo hasta que las autoridades declaren que la zona es 100% segura.</div>
+     </div>
+    </div>
+
+    <!-- NUEVO: SECCIÓN 9 -->
+    <div class="block-card-expandable" onclick="toggleBlock(this)">
+     <div class="block-header-clickable">
+      <div class="block-title-group">
+       <span class="block-title">9. PASOS BÁSICOS PARA SIMULACRO DE SISMO 🚨</span>
+       <span class="block-subtitle">Protocolo de 5 pasos en caso de alarma sísmica.</span>
+      </div>
+      <span class="arrow-icon">▼</span>
+     </div>
+     <div class="block-details-content">
+      <ul class="plan-list">
+        <li><strong>1. Primera sirena:</strong> Aplicar el "Triángulo de vida".</li>
+        <li><strong>2. Segunda sirena:</strong> Evacuar de forma ordenada hacia las salidas.</li>
+        <li><strong>3. Punto de encuentro:</strong> Diríjase al punto de encuentro asignado.</li>
+        <li><strong>4. Control y verificación:</strong> Las autoridades pasarán lista.</li>
+        <li><strong>5. Cierre:</strong> Fin del simulacro.</li>
+      </ul>
+     </div>
+    </div>
+
+    <!-- NUEVO: SECCIÓN 10 -->
+    <div class="block-card-expandable" onclick="toggleBlock(this)">
+     <div class="block-header-clickable">
+      <div class="block-title-group">
+       <span class="block-title">10. RECOMENDACIONES DE SUPERVIVENCIA Y REFUGIO 🛡️</span>
+       <span class="block-subtitle">Medidas clave durante y después de un evento.</span>
+      </div>
+      <span class="arrow-icon">▼</span>
+     </div>
+     <div class="block-details-content">
+      <ul class="plan-list">
+        <li><strong>Atención:</strong> Manténgase atento a las autoridades de la universidad y mantenga la calma en todo momento.</li>
+        <li><strong>Protección inmediata:</strong> Si no hay un mueble resistente cerca de usted, cúbrase la cara y la cabeza con sus brazos, agáchese lejos de ventanas e intente aplicar el triángulo de vida.</li>
+        <li><strong>Refugio temporal:</strong> Tenga prevista la posibilidad de alojarse temporalmente en casa de un familiar o amigo que no viva en la zona de riesgo.</li>
+        <li><strong>Zonas seguras:</strong> Si vive en una zona de riesgo, acuda a una zona segura. Evacúe siempre al punto de encuentro establecido.</li>
+      </ul>
      </div>
     </div>
    </div>
@@ -1873,21 +1907,28 @@
       currentModalStudentIndex = -1;
     }
 
-    // DESCARGA PDF 
+    // DESCARGA PDF - MODIFICADA SEGÚN LA SOLICITUD
     function downloadCoursePDF() {
+      const cicloQuery = document.getElementById('filter-ciclo').value;
+      
+      // OBLIGAMOS a que el usuario seleccione un Semestre específico
+      if (!cicloQuery) {
+          alert("⚠️ Por favor, selecciona un Semestre/Ciclo específico en los filtros antes de descargar el PDF.");
+          return;
+      }
+
       const { jsPDF } = window.jspdf;
       const doc = new jsPDF();
       
-      // Filtramos la lista generada en el directorio para que SOLO sean estudiantes. No profes ni admin.
-      const studentsToPrint = currentlyFilteredStudents.filter(s => s.rol === 'Estudiante');
+      // Filtramos la lista para que SOLO sean estudiantes Y que coincidan exactamente con el ciclo seleccionado
+      const studentsToPrint = currentlyFilteredStudents.filter(s => s.rol === 'Estudiante' && s.ciclo === cicloQuery);
       
       if(studentsToPrint.length === 0) {
-          alert("❌ No hay ESTUDIANTES en el filtro actual para descargar.");
+          alert(`❌ No hay ESTUDIANTES encontrados en el ${cicloQuery} para descargar.`);
           return;
       }
       
-      const carreraQuery = document.getElementById('filter-carrera').value || 'Todos los cursos';
-      const cicloQuery = document.getElementById('filter-ciclo').value || 'Todos los semestres';
+      const carreraQuery = document.getElementById('filter-carrera').value || 'Todas las Carreras';
       
       doc.setFontSize(16);
       doc.text("Plan de Contingencia UTCino", 14, 15);
